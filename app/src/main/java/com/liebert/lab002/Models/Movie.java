@@ -4,7 +4,9 @@ package com.liebert.lab002.Models;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.liebert.lab002.Utils;
 
+import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
@@ -163,6 +165,10 @@ public class Movie extends RealmObject {
 
     public void setVoteAverage(Double voteAverage) {
         this.voteAverage = voteAverage;
+    }
+
+    public String getFirstGenre() {
+        return Utils.translateGenre(Realm.getDefaultInstance(), getGenreIds().get(0).getInt());
     }
 
 }

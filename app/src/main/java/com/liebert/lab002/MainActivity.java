@@ -216,5 +216,8 @@ public class MainActivity extends AppCompatActivity {
         return mRealm.where(Movie.class).findAll();
     }
 
+    public Realm getRealm(){
+        return mRealm;
+    }
 
 }

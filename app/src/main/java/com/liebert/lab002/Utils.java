@@ -1,9 +1,13 @@
 package com.liebert.lab002;
 
+import android.content.Context;
+
 import com.liebert.lab002.Models.Genre;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.Realm;
 
 /**
  * Created by shorti1996 on 08.04.2017.
@@ -20,6 +24,11 @@ public class Utils {
 
         }
     }*/
+
+    public static String translateGenre(Realm realm, int genre) {
+        String genreString = realm.where(Genre.class).equalTo("id", genre).findFirst().getName();
+        return genreString;
+    }
 
     public static String translateGenre(int genre) {
         switch (genre) {
