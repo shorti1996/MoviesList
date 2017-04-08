@@ -52,7 +52,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MyViewHold
     public void onBindViewHolder(MyViewHolder holder, int position) {
         Movie movie = moviesList.get(position);
         holder.title.setText(movie.getTitle());
-//        holder.genre.setText(movie.getGenre());
+        holder.genre.setText(String.valueOf(movie.getGenreIds().get(0).getInt()));
         holder.year.setText(movie.getReleaseDate());
     }
 
