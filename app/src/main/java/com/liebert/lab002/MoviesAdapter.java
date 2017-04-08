@@ -76,7 +76,4 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MyViewHold
         return moviesList.size();
     }
 
-    public void updateBackdropImage(Movie movie){
-
-    }
 }

@@ -97,12 +97,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean checkCachedResults() {
-        RealmResults<Movie> mResults = RealmQuery.createQuery(mRealm, Movie.class)
-                .findAll();
-        return mResults.size() == 0;
-    }
-
     private void getGenresFromApi(){
         Gson gson = new GsonBuilder()
                 .setExclusionStrategies(new ExclusionStrategy() {
