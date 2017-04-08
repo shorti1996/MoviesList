@@ -51,34 +51,15 @@ public class MainActivity extends AppCompatActivity {
         Realm.init(this);
         mRealm = Realm.getDefaultInstance();
 
-/*        if (checkCachedResults()) {
+        List<Movie> movies = readMoviesFromRealm();
+        if (movies.size() == 0) {
             getMovies();
         } else {
-            RealmResults<Result> mResults = RealmQuery.createQuery(mRealm, Result.class)
-                    .findAll();
-            titlesTv.setText("");
-            for (Result r : mResults) {
+            for (Movie r : movies) {
                 titlesTv.append(r.getTitle() + "\n");
                 Log.d("FROM CACHE", r.getTitle());
             }
-        }*/
-        getMovies();
-
-        /*mRealm.beginTransaction();
-        mRealm.deleteAll();
-        mRealm.commitTransaction();
-
-        if (checkCachedResults()) {
-            getMovies();
-        } else {
-            RealmResults<Result> mResults = RealmQuery.createQuery(mRealm, Result.class)
-                    .findAll();
-            titlesTv.setText("");
-            for (Result r : mResults) {
-                titlesTv.append(r.getTitle());
-                Log.d("FROM CACHE", r.getTitle());
-            }
-        }*/
+        }
 
     }
 
@@ -150,4 +131,18 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    private List<Movie> writeMoviesToRealm(MoviesData moviesData) {
+        List<Movie> movies = moviesData.getResults();
+        mRealm.beginTransaction();
+        mRealm.copyToRealmOrUpdate(movies);
+        mRealm.commitTransaction();
+        return movies;
+    }
+
+    private List<Movie> readMoviesFromRealm() {
+        return mRealm.where(Movie.class).findAll();
+    }
+
+
 }
