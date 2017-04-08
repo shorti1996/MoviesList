@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="year">#999999</color>
-    <color name="title">#222222</color>
+    <color name="year">#e0e0e0</color>
+    <color name="title">#f5f5f5</color>
+    <color name="transparent">#00ffffff</color>
 </resources>
