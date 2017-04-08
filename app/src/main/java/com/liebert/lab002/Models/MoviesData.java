@@ -15,7 +15,7 @@ public class MoviesData extends RealmObject {
     private Integer page;
     @SerializedName("results")
     @Expose
-    private RealmList<Result> results = null;
+    private RealmList<Movie> results = null;
     @SerializedName("total_results")
     @Expose
     private Integer totalResults;
@@ -31,11 +31,11 @@ public class MoviesData extends RealmObject {
         this.page = page;
     }
 
-    public List<Result> getResults() {
+    public List<Movie> getResults() {
         return results;
     }
 
-    public void setResults(RealmList<Result> results) {
+    public void setResults(RealmList<Movie> results) {
         this.results = results;
     }
 

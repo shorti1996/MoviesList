@@ -13,9 +13,9 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.liebert.lab002.Models.Movie;
 import com.liebert.lab002.Models.MoviesData;
 import com.liebert.lab002.Models.RealmInt;
-import com.liebert.lab002.Models.Result;
 import com.liebert.lab002.Services.ThemoviedbService;
 
 import java.io.IOException;
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkCachedResults() {
-        RealmResults<Result> mResults = RealmQuery.createQuery(mRealm, Result.class)
+        RealmResults<Movie> mResults = RealmQuery.createQuery(mRealm, Movie.class)
                 .findAll();
         return mResults.size() == 0;
     }
@@ -139,13 +139,13 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("COMPLETED", "All mResults listed");
                 })
                 .subscribe(moviesData -> {
-                    List<Result> results = moviesData.getResults();
+                    List<Movie> results = moviesData.getResults();
 
                     mRealm.beginTransaction();
                     mRealm.copyToRealmOrUpdate(results);
                     mRealm.commitTransaction();
 
-                    for (Result result : results) {
+                    for (Movie result : results) {
                         Log.d("Movie", result.getTitle());
                     }
                 });

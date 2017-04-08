@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
-public class Result extends RealmObject {
+public class Movie extends RealmObject {
 
     @SerializedName("poster_path")
     @Expose
