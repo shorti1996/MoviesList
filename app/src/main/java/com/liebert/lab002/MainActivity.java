@@ -16,6 +16,8 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.liebert.lab002.Models.Genre;
+import com.liebert.lab002.Models.GenresList;
 import com.liebert.lab002.Models.Movie;
 import com.liebert.lab002.Models.MoviesData;
 import com.liebert.lab002.Models.RealmInt;
@@ -58,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
         loadMovies();
 
+        loadGenres();
+
         mMoviesAdapter = new MoviesAdapter(readMoviesFromRealm());
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         moviesRv.setLayoutManager(mLayoutManager);
@@ -78,10 +82,63 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void loadGenres() {
+        List<Genre> genres = mRealm.where(Genre.class).findAll();
+        if (genres.size() == 0) {
+            getGenresFromApi();
+        } else {
+            for (Genre g : genres) {
+//                titlesTv.append(r.getTitle() + "\n");
+                Log.d("FROM CACHE", g.toString());
+            }
+        }
+    }
+
     private boolean checkCachedResults() {
         RealmResults<Movie> mResults = RealmQuery.createQuery(mRealm, Movie.class)
                 .findAll();
         return mResults.size() == 0;
+    }
+
+    private void getGenresFromApi(){
+        Gson gson = new GsonBuilder()
+                .setExclusionStrategies(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        return f.getDeclaringClass().equals(RealmObject.class);
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                }).create();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(ThemoviedbService.SERVICE_ENDPOINT)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        ThemoviedbService themoviedbService = retrofit.create(ThemoviedbService.class);
+        Observable<GenresList> genresObservable = themoviedbService.getGenres();
+
+        genresObservable.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(() -> {
+                    Log.e("API CALL COMPLETED", "Genres downloaded");
+                })
+                .subscribe(genresList -> {
+                    List<Genre> genres = genresList.getGenres();
+
+                    mRealm.beginTransaction();
+                    mRealm.copyToRealmOrUpdate(genres);
+                    mRealm.commitTransaction();
+
+                    for (Genre genre : genres) {
+                        Log.d("Genre", genre.toString());
+                    }
+                });
     }
 
     private void getMoviesFromApi(){
@@ -132,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
         discoverMovies.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> {
-                    Log.e("COMPLETED", "All mResults listed");
+                    Log.e("API CALL COMPLETED", "All movies listed");
                 })
                 .subscribe(moviesData -> {
                     List<Movie> results = moviesData.getMovies();
