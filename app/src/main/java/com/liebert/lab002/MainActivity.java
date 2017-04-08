@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         loadGenres();
 
-        mMoviesAdapter = new MoviesAdapter(readMoviesFromRealm());
+        mMoviesAdapter = new MoviesAdapter(readMoviesFromRealm(), this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         moviesRv.setLayoutManager(mLayoutManager);
         moviesRv.setItemAnimator(new DefaultItemAnimator());
@@ -78,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
             for (Movie r : movies) {
                 titlesTv.append(r.getTitle() + "\n");
                 Log.d("FROM CACHE", r.getTitle());
+                if (mMoviesAdapter != null) {
+                    mMoviesAdapter.notifyDataSetChanged();
+                }
             }
         }
     }
@@ -189,6 +192,9 @@ public class MainActivity extends AppCompatActivity {
         discoverMovies.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> {
+                    if (mMoviesAdapter != null) {
+                        mMoviesAdapter.notifyDataSetChanged();
+                    }
                     Log.e("API CALL COMPLETED", "All movies listed");
                 })
                 .subscribe(moviesData -> {

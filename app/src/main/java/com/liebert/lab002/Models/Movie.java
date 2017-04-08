@@ -1,9 +1,12 @@
 
 package com.liebert.lab002.Models;
 
+import android.media.Image;
+
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.liebert.lab002.Services.ThemoviedbService;
 import com.liebert.lab002.Utils;
 
 import io.realm.Realm;
@@ -54,6 +57,10 @@ public class Movie extends RealmObject {
     @SerializedName("vote_average")
     @Expose
     private Double voteAverage;
+//    @SerializedName("backdrop_image")
+//    @Expose
+//    private Image backdropImage;
+
 
     public String getPosterPath() {
         return posterPath;
@@ -169,6 +176,10 @@ public class Movie extends RealmObject {
 
     public String getFirstGenre() {
         return Utils.translateGenre(Realm.getDefaultInstance(), getGenreIds().get(0).getInt());
+    }
+
+    public String getBackdropImageUri() {
+        return ThemoviedbService.BACKDROP_IMAGE_ENDPOINT + getBackdropPath();
     }
 
 }
