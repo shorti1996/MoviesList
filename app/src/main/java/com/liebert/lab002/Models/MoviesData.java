@@ -31,11 +31,11 @@ public class MoviesData extends RealmObject {
         this.page = page;
     }
 
-    public List<Movie> getResults() {
+    public List<Movie> getMovies() {
         return results;
     }
 
-    public void setResults(RealmList<Movie> results) {
+    public void setMovies(RealmList<Movie> results) {
         this.results = results;
     }
 

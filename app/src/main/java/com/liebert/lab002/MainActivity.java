@@ -2,6 +2,9 @@ package com.liebert.lab002;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -39,8 +42,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.titles_tv) TextView titlesTv;
+    @BindView(R.id.movies_rv) RecyclerView moviesRv;
 
     Realm mRealm;
+    private MoviesAdapter mMoviesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,16 +56,26 @@ public class MainActivity extends AppCompatActivity {
         Realm.init(this);
         mRealm = Realm.getDefaultInstance();
 
+        loadMovies();
+
+        mMoviesAdapter = new MoviesAdapter(readMoviesFromRealm());
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        moviesRv.setLayoutManager(mLayoutManager);
+        moviesRv.setItemAnimator(new DefaultItemAnimator());
+        moviesRv.setAdapter(mMoviesAdapter);
+
+    }
+
+    private void loadMovies() {
         List<Movie> movies = readMoviesFromRealm();
         if (movies.size() == 0) {
-            getMovies();
+            getMoviesFromApi();
         } else {
             for (Movie r : movies) {
                 titlesTv.append(r.getTitle() + "\n");
                 Log.d("FROM CACHE", r.getTitle());
             }
         }
-
     }
 
     private boolean checkCachedResults() {
@@ -69,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         return mResults.size() == 0;
     }
 
-    private void getMovies(){
+    private void getMoviesFromApi(){
         // this makes gson compatible with mRealm
         // otherwise gson won't work with the model
         Type token = new TypeToken<RealmList<RealmInt>>(){}.getType();
@@ -120,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("COMPLETED", "All mResults listed");
                 })
                 .subscribe(moviesData -> {
-                    List<Movie> results = moviesData.getResults();
+                    List<Movie> results = moviesData.getMovies();
 
                     mRealm.beginTransaction();
                     mRealm.copyToRealmOrUpdate(results);
@@ -133,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private List<Movie> writeMoviesToRealm(MoviesData moviesData) {
-        List<Movie> movies = moviesData.getResults();
+        List<Movie> movies = moviesData.getMovies();
         mRealm.beginTransaction();
         mRealm.copyToRealmOrUpdate(movies);
         mRealm.commitTransaction();
