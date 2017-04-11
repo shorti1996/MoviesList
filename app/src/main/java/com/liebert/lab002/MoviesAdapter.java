@@ -4,8 +4,11 @@ package com.liebert.lab002;
  * Created by shorti1996 on 08.04.2017.
  */
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -68,7 +71,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            Toast.makeText(mContext, "" + adapterPosition, Toast.LENGTH_SHORT).show();
+            Movie clickedMovie = moviesList.get(adapterPosition);
+            Toast.makeText(mContext, clickedMovie.getTitle(), Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(mContext, MovieDetailsActivity.class);
+            // Pass data object in the bundle and populate details activity.
+            intent.putExtra(MovieDetailsActivity.EXTRA_MOVIE, clickedMovie.getId());
+            ActivityOptionsCompat options = ActivityOptionsCompat.
+                    makeSceneTransitionAnimation((Activity) mContext, backdropIv, "movie_details");
+            mContext.startActivity(intent, options.toBundle());
 /*            mCursor.moveToPosition(adapterPosition);
             long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
             mClickHandler.onClick(dateInMillis);*/
