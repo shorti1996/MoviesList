@@ -194,6 +194,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             new Handler().post(() -> {
                 //in MainActivity
 //                moviesList.add(null);
+
                 notifyItemInserted(moviesList.size()); //so on the last position because one for loading view is added
 //                notifyDataSetChanged();
             });
