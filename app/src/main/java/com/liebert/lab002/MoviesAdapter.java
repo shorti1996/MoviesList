@@ -21,6 +21,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.liebert.lab002.Models.Movie;
 
 import java.util.ArrayList;
@@ -57,6 +60,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public TextView title, year, genre;
         public ImageView backdropIv;
+        public ProgressBar progressBar;
 
         public MovieViewHolder(View view) {
             super(view);
@@ -64,6 +68,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             genre = (TextView) view.findViewById(R.id.genre_tv);
             year = (TextView) view.findViewById(R.id.year_tv);
             backdropIv = (ImageView) view.findViewById(R.id.backdrop_iv);
+            progressBar = (ProgressBar) view.findViewById(R.id.movie_row_image_loading_iv);
 
             view.setOnClickListener(this);
         }
@@ -165,6 +170,18 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             Glide.with(mContext)
                     .load(movie.getBackdropImageUri())
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            ((MovieViewHolder) holder).progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .into(movieViewHolder.backdropIv);

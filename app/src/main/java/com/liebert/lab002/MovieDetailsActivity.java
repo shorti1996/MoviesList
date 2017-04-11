@@ -8,16 +8,21 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.liebert.lab002.Models.Movie;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
+
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
@@ -37,6 +42,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
+
+        supportPostponeEnterTransition();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -54,13 +62,24 @@ public class MovieDetailsActivity extends AppCompatActivity {
         movieId = getMovieFromExtra(savedInstanceState);
 
         ButterKnife.bind(this);
-        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
         CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
 
         Movie mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
-        Glide.with(this)
+
+        Glide.with(getBaseContext())
                 .load(mMovie.getBackdropImageUri())
-                .crossFade()
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        supportStartPostponedEnterTransition();
+                        return false;
+                    }
+                })
                 .diskCacheStrategy(DiskCacheStrategy.RESULT)
                 .into(backdropIv);
 
