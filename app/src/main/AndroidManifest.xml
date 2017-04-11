@@ -18,7 +18,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MovieDetailsActivity"></activity>
+        <activity
+            android:name=".MovieDetailsActivity"
+            android:label="@string/title_activity_movie_details1"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.liebert.lab002.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
