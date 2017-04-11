@@ -5,12 +5,14 @@ package com.liebert.lab002;
  */
 
 import android.content.Context;
+import android.os.Handler;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,23 +22,40 @@ import com.liebert.lab002.Models.Movie;
 
 import java.util.List;
 
-/**
- * Created by shorti1996 on 08.04.2017.
- */
+import kotlin.NotImplementedError;
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder> {
+public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private final int VIEW_TYPE_MOVIE_LEFT = 0;
+    private final int VIEW_TYPE_MOVIE_RIGHT = 1;
+    private final int VIEW_TYPE_LOADING = 100;
+
+    private boolean isMoreLoading = false;
+    private int visibleThreshold = 1;
+    int firstVisibleItem, visibleItemCount, totalItemCount;
 
     private List<Movie> moviesList;
     private Context mContext;
+    private OnLoadMoreListener onLoadMoreListener;
+    private LinearLayoutManager mLinearLayoutManager;
 
-    public class MoviesAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private static class ProgressViewHolder extends RecyclerView.ViewHolder {
+        private ProgressBar loadingPb;
+        private TextView loadingMessageTv;
+        public ProgressViewHolder(View view) {
+            super(view);
+            loadingPb = (ProgressBar) view.findViewById(R.id.movies_list_loading_pb);
+            loadingMessageTv = (TextView) view.findViewById(R.id.loading_more_movies_tv);
+            loadingMessageTv.setText(R.string.loading_more_movies_text);
+        }
+    }
 
-        private final String TAG = MoviesAdapterViewHolder.class.getSimpleName();
+    private class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public TextView title, year, genre;
         public ImageView backdropIv;
 
-        public MoviesAdapterViewHolder(View view) {
+        public MovieViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.title_tv);
             genre = (TextView) view.findViewById(R.id.genre_tv);
@@ -49,7 +68,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            Log.d(TAG, "" + adapterPosition);
             Toast.makeText(mContext, "" + adapterPosition, Toast.LENGTH_SHORT).show();
 /*            mCursor.moveToPosition(adapterPosition);
             long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
@@ -57,9 +75,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         }
     }
 
-    public MoviesAdapter(List<Movie> moviesList, Context context) {
+    public MoviesAdapter(List<Movie> moviesList, Context context, OnLoadMoreListener onLoadMoreListener) {
         this.moviesList = moviesList;
         this.mContext = context;
+        this.onLoadMoreListener = onLoadMoreListener;
     }
 
     public void addMoviesToList(List<Movie> moviesList) {
@@ -76,27 +95,81 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         this.moviesList = moviesList;
     }
 
-    @Override
-    public MoviesAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.movie_list_row, parent, false);
+    public void setRecyclerView(RecyclerView mView){
+        mView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
 
-        return new MoviesAdapterViewHolder(itemView);
+                visibleItemCount = recyclerView.getChildCount();
+                totalItemCount = mLinearLayoutManager.getItemCount();
+                firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
+                if (!isMoreLoading && (totalItemCount - visibleItemCount)<= (firstVisibleItem + visibleThreshold)) {
+                    if (onLoadMoreListener != null) {
+                        onLoadMoreListener.onLoadMore();
+                    }
+                    isMoreLoading = true;
+                }
+            }
+        });
+    }
+
+    public void setLinearLayoutManager(LinearLayoutManager linearLayoutManager){
+        this.mLinearLayoutManager=linearLayoutManager;
+    }
+
+
+    @Override
+    public int getItemViewType(int position) {
+        return moviesList.get(position).getIsDummy() ? VIEW_TYPE_LOADING : VIEW_TYPE_MOVIE_LEFT;
     }
 
     @Override
-    public void onBindViewHolder(MoviesAdapterViewHolder holder, int position) {
-        Movie movie = moviesList.get(position);
-        holder.title.setText(movie.getTitle());
-//        holder.genre.setText(String.valueOf(movie.getGenreIds().get(0).getInt()));
-        holder.genre.setText(movie.getFirstGenre());
-        holder.year.setText(movie.getReleaseDate());
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView;
+        if (viewType == VIEW_TYPE_MOVIE_LEFT) {
+            itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.movie_list_row, parent, false);
+            return new MovieViewHolder(itemView);
+        } else {
+            itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.movie_list_loading, parent, false);
+            return new ProgressViewHolder(itemView);
+        }
+    }
 
-        Glide.with(mContext)
-                .load(movie.getBackdropImageUri())
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                .into(holder.backdropIv);
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof MovieViewHolder) {
+            MovieViewHolder movieViewHolder = (MovieViewHolder) holder;
+            Movie movie = moviesList.get(position);
+            movieViewHolder.title.setText(movie.getTitle());
+//        holder.genre.setText(String.valueOf(movie.getGenreIds().get(0).getInt()));
+            movieViewHolder.genre.setText(movie.getFirstGenre());
+            movieViewHolder.year.setText(movie.getReleaseDate());
+
+            Glide.with(mContext)
+                    .load(movie.getBackdropImageUri())
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                    .into(movieViewHolder.backdropIv);
+        }
+    }
+
+    public void setProgressMore(final boolean isProgress) {
+        if (isProgress) {
+            new Handler().post(() -> {
+                //in MainActivity
+//                moviesList.add(null);
+                notifyItemInserted(moviesList.size()); //so on the last position because one for loading view is added
+                notifyDataSetChanged();
+            });
+        } else {
+            //TODO This will probably produce errors (check size)
+            moviesList.remove(moviesList.size() - 1);
+//            notifyItemRemoved(moviesList.size());
+            notifyDataSetChanged();
+        }
     }
 
     @Override

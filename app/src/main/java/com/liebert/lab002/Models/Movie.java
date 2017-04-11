@@ -15,6 +15,7 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 public class Movie extends RealmObject {
+    public static int dummyId = -999;
 
     @PrimaryKey
     @SerializedName("id")
@@ -44,7 +45,7 @@ public class Movie extends RealmObject {
     private String originalLanguage;
     @SerializedName("title")
     @Expose
-    private String title;
+    private String title = "dummy";
     @SerializedName("backdrop_path")
     @Expose
     private String backdropPath;
@@ -60,10 +61,20 @@ public class Movie extends RealmObject {
     @SerializedName("vote_average")
     @Expose
     private Double voteAverage;
+    @SerializedName("is_dummy")
+    @Expose
+    private boolean isDummy = false;
 //    @SerializedName("backdrop_image")
 //    @Expose
 //    private Image backdropImage;
 
+    public boolean getIsDummy() {
+        return isDummy;
+    }
+
+    public void setIsDummy(boolean isDummy) {
+        this.isDummy = isDummy;
+    }
 
     public String getPosterPath() {
         return posterPath;

@@ -1,5 +1,6 @@
 package com.liebert.lab002;
 
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -7,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -25,6 +27,7 @@ import com.liebert.lab002.Services.ThemoviedbService;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -44,7 +47,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static io.reactivex.internal.operators.observable.ObservableBlockingSubscribe.subscribe;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnLoadMoreListener {
 
     @BindView(R.id.titles_tv) TextView titlesTv;
     @BindView(R.id.movies_rv) RecyclerView moviesRv;
@@ -65,11 +68,13 @@ public class MainActivity extends AppCompatActivity {
 
         loadGenres();
 
-        mMoviesAdapter = new MoviesAdapter(readMoviesFromRealm(), this);
+        mMoviesAdapter = new MoviesAdapter(readMoviesFromRealm(), this, this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         moviesRv.setLayoutManager(mLayoutManager);
         moviesRv.setItemAnimator(new DefaultItemAnimator());
         moviesRv.setAdapter(mMoviesAdapter);
+        mMoviesAdapter.setRecyclerView(moviesRv);
+        mMoviesAdapter.setLinearLayoutManager((LinearLayoutManager) mLayoutManager);
 
     }
 
@@ -221,5 +226,25 @@ public class MainActivity extends AppCompatActivity {
     public Realm getRealm(){
         return mRealm;
     }
+
+    @Override
+    public void onLoadMore() {
+        Toast.makeText(this, "MainActivity#onLoadMore", Toast.LENGTH_SHORT).show();
+
+        addDummyMovieToRealm();
+
+        mMoviesAdapter.swapMoviesList(readMoviesFromRealm());
+        mMoviesAdapter.setProgressMore(true);
+    }
+
+    public void addDummyMovieToRealm() {
+        Movie dummyMovie = new Movie();
+        dummyMovie.setId(Movie.dummyId);
+        dummyMovie.setIsDummy(true);
+        mRealm.beginTransaction();
+        mRealm.copyToRealmOrUpdate(dummyMovie);
+        mRealm.commitTransaction();
+    }
+
 
 }
