@@ -50,13 +50,11 @@ dependencies {
     compile "com.android.support:design:$supportLibVersion"
     compile "com.android.support:recyclerview-v7:$supportLibVersion"
 
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
     //rxJava
-    compile 'io.reactivex.rxjava2:rxjava:2.0.8'
     //rxAndroid
+    compile 'io.reactivex.rxjava2:rxjava:2.0.8'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
 
     //lambda syntax
@@ -81,8 +79,11 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
 
     ///movies api wrapper
-//    compile group: 'info.movito', name: 'themoviedbapi', version:'1.4'
+    //    compile group: 'info.movito', name: 'themoviedbapi', version:'1.4'
 
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+
+    testCompile 'junit:junit:4.12'
 }
 repositories {
     mavenCentral()

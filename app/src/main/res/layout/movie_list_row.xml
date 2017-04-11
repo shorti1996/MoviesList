@@ -14,21 +14,22 @@
     android:orientation="horizontal">
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/movie_row_image_loading_iv"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@+id/backdrop_iv"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/backdrop_tint"
-        android:layout_marginBottom="8dp"
-        android:layout_marginRight="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/backdrop_iv" />
 
     <ImageView
         android:id="@+id/backdrop_iv"
+        android:transitionName="movie_details"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="centerCrop"

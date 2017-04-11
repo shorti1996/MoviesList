@@ -4,8 +4,11 @@ package com.liebert.lab002;
  * Created by shorti1996 on 08.04.2017.
  */
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,11 +21,13 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.liebert.lab002.Models.Movie;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import kotlin.NotImplementedError;
 
 public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -31,8 +36,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final int VIEW_TYPE_LOADING = 100;
 
     private boolean isMoreLoading = false;
+    // when to start loading more items (this number = how many items on list before)
     private int visibleThreshold = 1;
-    int firstVisibleItem, visibleItemCount, totalItemCount;
+    private int firstVisibleItem, visibleItemCount, totalItemCount;
 
     private List<Movie> moviesList;
     private Context mContext;
@@ -54,6 +60,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public TextView title, year, genre;
         public ImageView backdropIv;
+        public ProgressBar progressBar;
 
         public MovieViewHolder(View view) {
             super(view);
@@ -61,6 +68,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             genre = (TextView) view.findViewById(R.id.genre_tv);
             year = (TextView) view.findViewById(R.id.year_tv);
             backdropIv = (ImageView) view.findViewById(R.id.backdrop_iv);
+            progressBar = (ProgressBar) view.findViewById(R.id.movie_row_image_loading_iv);
 
             view.setOnClickListener(this);
         }
@@ -68,22 +76,28 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            Toast.makeText(mContext, "" + adapterPosition, Toast.LENGTH_SHORT).show();
+            Movie clickedMovie = moviesList.get(adapterPosition);
+//            Toast.makeText(mContext, clickedMovie.getTitle(), Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(mContext, MovieDetailsActivity.class);
+            // Pass data object in the bundle and populate details activity.
+            intent.putExtra(MovieDetailsActivity.EXTRA_MOVIE, clickedMovie.getId());
+            ActivityOptionsCompat options = ActivityOptionsCompat.
+                    makeSceneTransitionAnimation((Activity) mContext, backdropIv, "movie_details");
+            mContext.startActivity(intent, options.toBundle());
 /*            mCursor.moveToPosition(adapterPosition);
             long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
             mClickHandler.onClick(dateInMillis);*/
         }
     }
 
-    public MoviesAdapter(List<Movie> moviesList, Context context, OnLoadMoreListener onLoadMoreListener) {
-        this.moviesList = moviesList;
+    public MoviesAdapter(/*List<Movie> moviesList,*/ Context context) {
+        this.moviesList = new ArrayList<>();
         this.mContext = context;
-        this.onLoadMoreListener = onLoadMoreListener;
     }
 
-    public void addMoviesToList(List<Movie> moviesList) {
-        this.moviesList.addAll(moviesList);
-        notifyDataSetChanged();
+    public void setOnLoadMoreListener(OnLoadMoreListener listener) {
+        this.onLoadMoreListener = listener;
     }
 
     public void clearMoviesList() {
@@ -95,6 +109,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.moviesList = moviesList;
     }
 
+    public List<Movie> getMoviesList() {
+        return this.moviesList;
+    }
+
     public void setRecyclerView(RecyclerView mView){
         mView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -104,11 +122,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 visibleItemCount = recyclerView.getChildCount();
                 totalItemCount = mLinearLayoutManager.getItemCount();
                 firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
-                if (!isMoreLoading && (totalItemCount - visibleItemCount)<= (firstVisibleItem + visibleThreshold)) {
+                if (!isMoreLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                    isMoreLoading = true;
                     if (onLoadMoreListener != null) {
                         onLoadMoreListener.onLoadMore();
                     }
-                    isMoreLoading = true;
                 }
             }
         });
@@ -123,6 +141,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public int getItemViewType(int position) {
         return moviesList.get(position).getIsDummy() ? VIEW_TYPE_LOADING : VIEW_TYPE_MOVIE_LEFT;
     }
+
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -150,25 +170,39 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             Glide.with(mContext)
                     .load(movie.getBackdropImageUri())
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            ((MovieViewHolder) holder).progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .into(movieViewHolder.backdropIv);
         }
     }
 
-    public void setProgressMore(final boolean isProgress) {
+    public void setProgressMore(boolean isProgress) {
         if (isProgress) {
+            // never update UI directly from worker thread
             new Handler().post(() -> {
                 //in MainActivity
 //                moviesList.add(null);
                 notifyItemInserted(moviesList.size()); //so on the last position because one for loading view is added
-                notifyDataSetChanged();
+//                notifyDataSetChanged();
             });
         } else {
             //TODO This will probably produce errors (check size)
-            moviesList.remove(moviesList.size() - 1);
+            isMoreLoading = false;
+//            moviesList.remove(moviesList.size() - 1);
 //            notifyItemRemoved(moviesList.size());
-            notifyDataSetChanged();
+//            notifyDataSetChanged();
         }
     }
 

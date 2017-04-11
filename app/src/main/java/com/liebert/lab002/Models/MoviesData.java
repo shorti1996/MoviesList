@@ -7,18 +7,23 @@ import com.google.gson.annotations.SerializedName;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class MoviesData extends RealmObject {
 
+    @PrimaryKey
     @SerializedName("page")
     @Expose
     private Integer page;
+
     @SerializedName("results")
     @Expose
     private RealmList<Movie> results = null;
+
     @SerializedName("total_results")
     @Expose
     private Integer totalResults;
+
     @SerializedName("total_pages")
     @Expose
     private Integer totalPages;
