@@ -31,6 +31,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -40,6 +41,8 @@ import io.realm.RealmResults;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static io.reactivex.internal.operators.observable.ObservableBlockingSubscribe.subscribe;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -118,24 +121,23 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         ThemoviedbService themoviedbService = retrofit.create(ThemoviedbService.class);
-        Observable<GenresList> genresObservable = themoviedbService.getGenres();
-
-        genresObservable.subscribeOn(Schedulers.newThread())
+        Observable<Genre> genresObservable = themoviedbService.getGenres()
+                .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(genresList -> Observable.fromIterable(genresList.getGenres()))
                 .doOnComplete(() -> {
                     Log.e("API CALL COMPLETED", "Genres downloaded");
-                })
-                .subscribe(genresList -> {
-                    List<Genre> genres = genresList.getGenres();
-
-                    mRealm.beginTransaction();
-                    mRealm.copyToRealmOrUpdate(genres);
-                    mRealm.commitTransaction();
-
-                    for (Genre genre : genres) {
-                        Log.d("Genre", genre.toString());
-                    }
                 });
+
+        genresObservable.subscribe(genre -> {
+            mRealm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    mRealm.copyToRealmOrUpdate(genre);
+                }
+            });
+            Log.d("Genre", genre.toString());
+        });
     }
 
     private void getMoviesFromApi(){
@@ -181,26 +183,26 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         ThemoviedbService themoviedbService = retrofit.create(ThemoviedbService.class);
-        Observable<MoviesData> discoverMovies = themoviedbService.getMoviesDiscover(); //weatherService.getWeatherData("Islamabad");
-
-        discoverMovies.subscribeOn(Schedulers.newThread())
+        Observable<Movie> discoverMovies = themoviedbService.getMoviesDiscover()
+                .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(moviesData -> {
+                    List<Movie> results = moviesData.getMovies();
+                    return Observable.fromIterable(results);
+                })
                 .doOnComplete(() -> {
                     if (mMoviesAdapter != null) {
                         mMoviesAdapter.notifyDataSetChanged();
                     }
                     Log.e("API CALL COMPLETED", "All movies listed");
-                })
-                .subscribe(moviesData -> {
-                    List<Movie> results = moviesData.getMovies();
+                });
 
+        discoverMovies.subscribe(movie -> {
                     mRealm.beginTransaction();
-                    mRealm.copyToRealmOrUpdate(results);
+                    mRealm.copyToRealmOrUpdate(movie);
                     mRealm.commitTransaction();
 
-                    for (Movie result : results) {
-                        Log.d("Movie", result.getTitle());
-                    }
+                    Log.d("Movie", movie.getTitle());
                 });
     }
 

@@ -12,8 +12,14 @@ import com.liebert.lab002.Utils;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class Movie extends RealmObject {
+
+    @PrimaryKey
+    @SerializedName("id")
+    @Expose
+    private Integer id;
 
     @SerializedName("poster_path")
     @Expose
@@ -30,9 +36,6 @@ public class Movie extends RealmObject {
     @SerializedName("genre_ids")
     @Expose
     private RealmList<RealmInt> genreIds = null;
-    @SerializedName("id")
-    @Expose
-    private Integer id;
     @SerializedName("original_title")
     @Expose
     private String originalTitle;
