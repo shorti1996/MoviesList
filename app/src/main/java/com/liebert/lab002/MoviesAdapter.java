@@ -72,7 +72,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
             Movie clickedMovie = moviesList.get(adapterPosition);
-            Toast.makeText(mContext, clickedMovie.getTitle(), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(mContext, clickedMovie.getTitle(), Toast.LENGTH_SHORT).show();
 
             Intent intent = new Intent(mContext, MovieDetailsActivity.class);
             // Pass data object in the bundle and populate details activity.

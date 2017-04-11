@@ -24,11 +24,20 @@
 
             <ImageView
                 android:id="@+id/backdrop_iv"
-                android:transitionName="movie_details"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/backdrop" />
+                android:transitionName="movie_details"
+                app:srcCompat="@android:color/darker_gray" />
+
+            <ImageView
+                android:id="@+id/tint_iv"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom"
+                app:layout_anchor="@id/backdrop_iv"
+                app:layout_anchorGravity="bottom"
+                app:srcCompat="@drawable/rectangle" />
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -47,6 +56,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
+        android:visibility="gone"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@android:drawable/ic_dialog_email" />
