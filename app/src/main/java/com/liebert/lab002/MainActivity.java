@@ -44,7 +44,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static io.reactivex.internal.operators.observable.ObservableBlockingSubscribe.subscribe;
 
-public class MainActivity extends AppCompatActivity implements OnLoadMoreListener {
+public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.titles_tv) TextView titlesTv;
     @BindView(R.id.movies_rv) RecyclerView moviesRv;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
 
         loadGenres();
 
-        mMoviesAdapter = new MoviesAdapter(this, this);
+        mMoviesAdapter = new MoviesAdapter(this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         moviesRv.setLayoutManager(mLayoutManager);
         moviesRv.setItemAnimator(new DefaultItemAnimator());
@@ -74,29 +74,10 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
         mMoviesAdapter.setRecyclerView(moviesRv);
         mMoviesAdapter.setLinearLayoutManager((LinearLayoutManager) mLayoutManager);
 
-        mMoviesPresenter = new DiscoverMoviesPresenter(mMoviesAdapter, mRealm);
+        mMoviesPresenter = new DiscoverMoviesPresenter(mMoviesAdapter, mRealm, this);
+        mMoviesAdapter.setOnLoadMoreListener(mMoviesPresenter);
         mMoviesPresenter.loadNextPage();
 
-    }
-
-/*    private void test() {
-        DiscoverMoviesPresenter mMoviesPresenter = new DiscoverMoviesPresenter(mMoviesAdapter, mRealm);
-        mMoviesPresenter.
-    }*/
-
-    private void loadMovies() {
-        List<Movie> movies = readMoviesFromRealm();
-        if (movies.size() == 0) {
-            getMoviesFromApi();
-        } else {
-            for (Movie r : movies) {
-//                titlesTv.append(r.getTitle() + "\n");
-                Log.d("FROM CACHE", r.getTitle());
-            }
-            if (mMoviesAdapter != null) {
-                mMoviesAdapter.notifyDataSetChanged();
-            }
-        }
     }
 
     private void loadGenres() {
@@ -239,33 +220,6 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
         return mRealm;
     }
 
-    @Override
-    public void onLoadMore() {
-        Toast.makeText(this, getString(R.string.loading_more_movies_toast), Toast.LENGTH_SHORT).show();
-
-        addDummyMovieToRealm();
-
-//        mMoviesAdapter.swapMoviesList(readMoviesFromRealm());
-        mMoviesAdapter.setProgressMore(true);
-        mMoviesAdapter.notifyDataSetChanged();
-        mMoviesPresenter.loadNextPage();
-    }
-
-    public void addDummyMovieToRealm() {
-        Movie dummyMovie = new Movie();
-        dummyMovie.setId(Movie.dummyId);
-        dummyMovie.setIsDummy(true);
-        mRealm.beginTransaction();
-        mRealm.copyToRealmOrUpdate(dummyMovie);
-        mRealm.commitTransaction();
-    }
-
-    public void removeDummyMovieFromRealm() {
-        mRealm.executeTransaction(realm -> {
-            RealmResults<Movie> result = realm.where(Movie.class).equalTo("is_dummy", true).findAll();
-            result.deleteAllFromRealm();
-        });
-    }
 
 
 }

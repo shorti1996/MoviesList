@@ -30,9 +30,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final int VIEW_TYPE_LOADING = 100;
 
     private boolean isMoreLoading = false;
-    // when to start loading more (number = how many items on list before)
-    private int visibleThreshold = 5;
-    int firstVisibleItem, visibleItemCount, totalItemCount;
+    // when to start loading more items (this number = how many items on list before)
+    private int visibleThreshold = 1;
+    private int firstVisibleItem, visibleItemCount, totalItemCount;
 
     private List<Movie> moviesList;
     private Context mContext;
@@ -75,10 +75,13 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public MoviesAdapter(/*List<Movie> moviesList,*/ Context context, OnLoadMoreListener onLoadMoreListener) {
+    public MoviesAdapter(/*List<Movie> moviesList,*/ Context context) {
         this.moviesList = new ArrayList<>();
         this.mContext = context;
-        this.onLoadMoreListener = onLoadMoreListener;
+    }
+
+    public void setOnLoadMoreListener(OnLoadMoreListener listener) {
+        this.onLoadMoreListener = listener;
     }
 
     public void clearMoviesList() {
@@ -171,7 +174,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             isMoreLoading = false;
 //            moviesList.remove(moviesList.size() - 1);
 //            notifyItemRemoved(moviesList.size());
-            notifyDataSetChanged();
+//            notifyDataSetChanged();
         }
     }
 

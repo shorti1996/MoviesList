@@ -1,6 +1,8 @@
 package com.liebert.lab002;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -26,6 +28,7 @@ import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.Sort;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -35,14 +38,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by shorti1996 on 11.04.2017.
  */
 
-public class DiscoverMoviesPresenter {
+public class DiscoverMoviesPresenter implements OnLoadMoreListener {
 
-    public interface OnLoadMoreListener {
-        void onLoadMore(int howMany);
-    }
-
-    OnLoadMoreListener onLoadMoreListener;
-
+    Context mContext;
     private MoviesAdapter mMoviesAdapter;
     private Realm mRealm;
 
@@ -59,9 +57,40 @@ public class DiscoverMoviesPresenter {
         this.page = getPage() + 1;
     }
 
-    public DiscoverMoviesPresenter(MoviesAdapter moviesAdapter, Realm realm) {
+    public DiscoverMoviesPresenter(MoviesAdapter moviesAdapter, Realm realm, Context context) {
         this.mMoviesAdapter = moviesAdapter;
         this.mRealm = realm;
+        this.mContext = context;
+    }
+
+    @Override
+    public void onLoadMore() {
+        Toast.makeText(mContext, mContext.getString(R.string.loading_more_movies_toast), Toast.LENGTH_SHORT).show();
+
+        addDummyMovieToRealm();
+//        mMoviesAdapter.swapMoviesList(readMoviesFromRealm());
+        mMoviesAdapter.setProgressMore(true);
+        mMoviesAdapter.notifyDataSetChanged();
+        loadNextPage();
+    }
+
+    public void addDummyMovieToRealm() {
+        Movie dummyMovie = new Movie();
+        dummyMovie.setId(Movie.dummyId);
+        dummyMovie.setIsDummy(true);
+        mRealm.executeTransaction(realm -> {
+            realm.copyToRealmOrUpdate(dummyMovie);
+        });
+//        mRealm.beginTransaction();
+//        mRealm.copyToRealmOrUpdate(dummyMovie);
+//        mRealm.commitTransaction();
+    }
+
+    public void removeDummyMovieFromRealm() {
+        mRealm.executeTransaction(realm -> {
+            RealmResults<Movie> result = realm.where(Movie.class).equalTo("is_dummy", true).findAll();
+            result.deleteAllFromRealm();
+        });
     }
 
     public void getMoviesFromApi(){
@@ -152,17 +181,17 @@ public class DiscoverMoviesPresenter {
 //        return mRealm.where(MoviesData.class).equalTo("page", getPage()).findFirst().getMovies().size();
     }
 
-    private int getStart() {
-        return (this.getPage() - 1) * PAGE_SIZE;
-    }
-
-    private int getEnd() {
-        return getStart() + PAGE_SIZE;
-    }
-
-    private void downloadMoreMovies() {
-        nextPage();
-        getMoviesFromApi();
-    }
+//    private int getStart() {
+//        return (this.getPage() - 1) * PAGE_SIZE;
+//    }
+//
+//    private int getEnd() {
+//        return getStart() + PAGE_SIZE;
+//    }
+//
+//    private void downloadMoreMovies() {
+//        nextPage();
+//        getMoviesFromApi();
+//    }
 
 }
