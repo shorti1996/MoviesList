@@ -1,6 +1,5 @@
 package com.liebert.lab002;
 
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -19,7 +18,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.liebert.lab002.Models.Genre;
-import com.liebert.lab002.Models.GenresList;
 import com.liebert.lab002.Models.Movie;
 import com.liebert.lab002.Models.MoviesData;
 import com.liebert.lab002.Models.RealmInt;
@@ -34,13 +32,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -54,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
 
     Realm mRealm;
     private MoviesAdapter mMoviesAdapter;
+    private DiscoverMoviesPresenter mMoviesPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +62,11 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
         Realm.init(this);
         mRealm = Realm.getDefaultInstance();
 
-        loadMovies();
+//        loadMovies();
 
         loadGenres();
 
-        mMoviesAdapter = new MoviesAdapter(readMoviesFromRealm(), this, this);
+        mMoviesAdapter = new MoviesAdapter(this, this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         moviesRv.setLayoutManager(mLayoutManager);
         moviesRv.setItemAnimator(new DefaultItemAnimator());
@@ -76,7 +74,15 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
         mMoviesAdapter.setRecyclerView(moviesRv);
         mMoviesAdapter.setLinearLayoutManager((LinearLayoutManager) mLayoutManager);
 
+        mMoviesPresenter = new DiscoverMoviesPresenter(mMoviesAdapter, mRealm);
+        mMoviesPresenter.loadNextPage();
+
     }
+
+/*    private void test() {
+        DiscoverMoviesPresenter mMoviesPresenter = new DiscoverMoviesPresenter(mMoviesAdapter, mRealm);
+        mMoviesPresenter.
+    }*/
 
     private void loadMovies() {
         List<Movie> movies = readMoviesFromRealm();
@@ -84,11 +90,11 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
             getMoviesFromApi();
         } else {
             for (Movie r : movies) {
-                titlesTv.append(r.getTitle() + "\n");
+//                titlesTv.append(r.getTitle() + "\n");
                 Log.d("FROM CACHE", r.getTitle());
-                if (mMoviesAdapter != null) {
-                    mMoviesAdapter.notifyDataSetChanged();
-                }
+            }
+            if (mMoviesAdapter != null) {
+                mMoviesAdapter.notifyDataSetChanged();
             }
         }
     }
@@ -188,13 +194,9 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
                 .build();
 
         ThemoviedbService themoviedbService = retrofit.create(ThemoviedbService.class);
-        Observable<Movie> discoverMovies = themoviedbService.getMoviesDiscover(ThemoviedbService.API_KEY, 2)
+        Observable<MoviesData> discoverMovies = themoviedbService.getMoviesDiscover(ThemoviedbService.API_KEY, 2)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(moviesData -> {
-                    List<Movie> results = moviesData.getMovies();
-                    return Observable.fromIterable(results);
-                })
                 .doOnComplete(() -> {
                     if (mMoviesAdapter != null) {
                         mMoviesAdapter.notifyDataSetChanged();
@@ -202,12 +204,17 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
                     Log.e("API CALL COMPLETED", "All movies listed");
                 });
 
-        discoverMovies.subscribe(movie -> {
+        discoverMovies.subscribe(moviesData -> {
                     mRealm.beginTransaction();
-                    mRealm.copyToRealmOrUpdate(movie);
+                    mRealm.copyToRealmOrUpdate(moviesData);
                     mRealm.commitTransaction();
 
-                    Log.d("Movie", movie.getTitle());
+                    Log.d("MoviesData", "" + moviesData.getPage());
+
+                    for (Movie m : moviesData.getMovies()) {
+                        Log.d("Movie", m.getTitle());
+                    }
+
                 });
     }
 
@@ -220,7 +227,12 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
     }
 
     private List<Movie> readMoviesFromRealm() {
-        return mRealm.where(Movie.class).findAll();
+        RealmResults<MoviesData> realmResults = mRealm.where(MoviesData.class).findAllSorted("page", Sort.ASCENDING);
+        List<Movie> movies = new ArrayList<>();
+        for (MoviesData md : realmResults) {
+            movies.addAll(md.getMovies());
+        }
+        return movies;
     }
 
     public Realm getRealm(){
@@ -229,13 +241,14 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
 
     @Override
     public void onLoadMore() {
-//        Toast.makeText(this, "MainActivity#onLoadMore", Toast.LENGTH_SHORT).show();
         Toast.makeText(this, getString(R.string.loading_more_movies_toast), Toast.LENGTH_SHORT).show();
 
         addDummyMovieToRealm();
 
-        mMoviesAdapter.swapMoviesList(readMoviesFromRealm());
+//        mMoviesAdapter.swapMoviesList(readMoviesFromRealm());
         mMoviesAdapter.setProgressMore(true);
+        mMoviesAdapter.notifyDataSetChanged();
+        mMoviesPresenter.loadNextPage();
     }
 
     public void addDummyMovieToRealm() {
@@ -245,6 +258,13 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
         mRealm.beginTransaction();
         mRealm.copyToRealmOrUpdate(dummyMovie);
         mRealm.commitTransaction();
+    }
+
+    public void removeDummyMovieFromRealm() {
+        mRealm.executeTransaction(realm -> {
+            RealmResults<Movie> result = realm.where(Movie.class).equalTo("is_dummy", true).findAll();
+            result.deleteAllFromRealm();
+        });
     }
 
 

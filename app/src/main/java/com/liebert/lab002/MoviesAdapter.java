@@ -20,9 +20,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.liebert.lab002.Models.Movie;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import kotlin.NotImplementedError;
 
 public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -76,8 +75,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public MoviesAdapter(List<Movie> moviesList, Context context, OnLoadMoreListener onLoadMoreListener) {
-        this.moviesList = moviesList;
+    public MoviesAdapter(/*List<Movie> moviesList,*/ Context context, OnLoadMoreListener onLoadMoreListener) {
+        this.moviesList = new ArrayList<>();
         this.mContext = context;
         this.onLoadMoreListener = onLoadMoreListener;
     }
@@ -91,6 +90,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.moviesList = moviesList;
     }
 
+    public List<Movie> getMoviesList() {
+        return this.moviesList;
+    }
+
     public void setRecyclerView(RecyclerView mView){
         mView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -101,10 +104,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 totalItemCount = mLinearLayoutManager.getItemCount();
                 firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
                 if (!isMoreLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                    isMoreLoading = true;
                     if (onLoadMoreListener != null) {
                         onLoadMoreListener.onLoadMore();
                     }
-                    isMoreLoading = true;
                 }
             }
         });
@@ -119,6 +122,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public int getItemViewType(int position) {
         return moviesList.get(position).getIsDummy() ? VIEW_TYPE_LOADING : VIEW_TYPE_MOVIE_LEFT;
     }
+
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -152,18 +157,19 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public void setProgressMore(final boolean isProgress) {
+    public void setProgressMore(boolean isProgress) {
         if (isProgress) {
             // never update UI directly from worker thread
             new Handler().post(() -> {
                 //in MainActivity
 //                moviesList.add(null);
                 notifyItemInserted(moviesList.size()); //so on the last position because one for loading view is added
-                notifyDataSetChanged();
+//                notifyDataSetChanged();
             });
         } else {
             //TODO This will probably produce errors (check size)
-            moviesList.remove(moviesList.size() - 1);
+            isMoreLoading = false;
+//            moviesList.remove(moviesList.size() - 1);
 //            notifyItemRemoved(moviesList.size());
             notifyDataSetChanged();
         }
