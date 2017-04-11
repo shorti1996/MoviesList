@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
                 .build();
 
         ThemoviedbService themoviedbService = retrofit.create(ThemoviedbService.class);
-        Observable<Movie> discoverMovies = themoviedbService.getMoviesDiscover()
+        Observable<Movie> discoverMovies = themoviedbService.getMoviesDiscover(ThemoviedbService.API_KEY, 2)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(moviesData -> {
@@ -229,7 +229,8 @@ public class MainActivity extends AppCompatActivity implements OnLoadMoreListene
 
     @Override
     public void onLoadMore() {
-        Toast.makeText(this, "MainActivity#onLoadMore", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "MainActivity#onLoadMore", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.loading_more_movies_toast), Toast.LENGTH_SHORT).show();
 
         addDummyMovieToRealm();
 

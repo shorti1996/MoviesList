@@ -31,7 +31,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final int VIEW_TYPE_LOADING = 100;
 
     private boolean isMoreLoading = false;
-    private int visibleThreshold = 1;
+    // when to start loading more (number = how many items on list before)
+    private int visibleThreshold = 5;
     int firstVisibleItem, visibleItemCount, totalItemCount;
 
     private List<Movie> moviesList;
@@ -81,11 +82,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.onLoadMoreListener = onLoadMoreListener;
     }
 
-    public void addMoviesToList(List<Movie> moviesList) {
-        this.moviesList.addAll(moviesList);
-        notifyDataSetChanged();
-    }
-
     public void clearMoviesList() {
         this.moviesList = null;
         notifyDataSetChanged();
@@ -104,7 +100,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 visibleItemCount = recyclerView.getChildCount();
                 totalItemCount = mLinearLayoutManager.getItemCount();
                 firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
-                if (!isMoreLoading && (totalItemCount - visibleItemCount)<= (firstVisibleItem + visibleThreshold)) {
+                if (!isMoreLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                     if (onLoadMoreListener != null) {
                         onLoadMoreListener.onLoadMore();
                     }
@@ -158,6 +154,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public void setProgressMore(final boolean isProgress) {
         if (isProgress) {
+            // never update UI directly from worker thread
             new Handler().post(() -> {
                 //in MainActivity
 //                moviesList.add(null);
