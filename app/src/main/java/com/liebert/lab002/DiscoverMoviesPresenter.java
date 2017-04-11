@@ -67,31 +67,37 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
     public void onLoadMore() {
         Toast.makeText(mContext, mContext.getString(R.string.loading_more_movies_toast), Toast.LENGTH_SHORT).show();
 
-        addDummyMovieToRealm();
+//        addDummyMovieToRealm();
 //        mMoviesAdapter.swapMoviesList(readMoviesFromRealm());
+        Movie dummyMovie = new Movie();
+        dummyMovie.setId(Movie.dummyId);
+        dummyMovie.setIsDummy(true);
+        List<Movie> newList = mMoviesAdapter.getMoviesList();
+        newList.add(dummyMovie);
+        mMoviesAdapter.swapMoviesList(newList);
         mMoviesAdapter.setProgressMore(true);
         mMoviesAdapter.notifyDataSetChanged();
         loadNextPage();
     }
 
-    public void addDummyMovieToRealm() {
-        Movie dummyMovie = new Movie();
-        dummyMovie.setId(Movie.dummyId);
-        dummyMovie.setIsDummy(true);
-        mRealm.executeTransaction(realm -> {
-            realm.copyToRealmOrUpdate(dummyMovie);
-        });
-//        mRealm.beginTransaction();
-//        mRealm.copyToRealmOrUpdate(dummyMovie);
-//        mRealm.commitTransaction();
-    }
+//    public void addDummyMovieToRealm() {
+//        Movie dummyMovie = new Movie();
+//        dummyMovie.setId(Movie.dummyId);
+//        dummyMovie.setIsDummy(true);
+//        mRealm.executeTransaction(realm -> {
+//            realm.copyToRealmOrUpdate(dummyMovie);
+//        });
+////        mRealm.beginTransaction();
+////        mRealm.copyToRealmOrUpdate(dummyMovie);
+////        mRealm.commitTransaction();
+//    }
 
-    public void removeDummyMovieFromRealm() {
-        mRealm.executeTransaction(realm -> {
-            RealmResults<Movie> result = realm.where(Movie.class).equalTo("is_dummy", true).findAll();
-            result.deleteAllFromRealm();
-        });
-    }
+//    public void removeDummyMovieFromRealm() {
+//        mRealm.executeTransaction(realm -> {
+//            RealmResults<Movie> result = realm.where(Movie.class).equalTo("is_dummy", true).findAll();
+//            result.deleteAllFromRealm();
+//        });
+//    }
 
     public void getMoviesFromApi(){
         // this makes gson compatible with mRealm
@@ -143,7 +149,7 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
                     if (mMoviesAdapter != null) {
 //                        mMoviesAdapter.notifyDataSetChanged();
                     }
-                    Log.e("API CALL COMPLETED", "Page downloaded");
+                    Log.d("API CALL COMPLETED", "Page downloaded");
                 });
 
         discoverMovies.subscribe(moviesData -> {
