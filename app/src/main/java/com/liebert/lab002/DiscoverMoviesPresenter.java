@@ -164,7 +164,7 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefresh
                     return MoviesData.getEmptyMoviesData();
                 })
 //                .doOnError(throwable -> {
-//                    Log.e("KURWA", "NETWORK ERRRRROR");
+//                    Log.e("BAD THINGS", "NETWORK ERRRRROR");
 //                    Toast.makeText(mContext, mContext.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
 //                    throwable.printStackTrace();
 //                })
