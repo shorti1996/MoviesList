@@ -50,8 +50,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onRefresh() {
-        Toast.makeText(mContext, mContext.getString(R.string.refresh_movies_toast), Toast.LENGTH_SHORT).show();
-
+//        Toast.makeText(mContext, mContext.getString(R.string.refresh_movies_toast), Toast.LENGTH_SHORT).show();
+        onLoadMoreListener.onRefresh();
     }
 
     private static class ProgressViewHolder extends RecyclerView.ViewHolder {
@@ -112,7 +112,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public void clearMoviesList() {
-        this.moviesList = null;
+        this.moviesList = new ArrayList<>();
         notifyDataSetChanged();
     }
 
@@ -210,8 +210,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 //                notifyDataSetChanged();
             });
         } else {
-            //TODO This will probably produce errors (check size)
+            //TODO Clean this up
             isMoreLoading = false;
+            mSwipeRefreshLayout.setRefreshing(false);
 //            moviesList.remove(moviesList.size() - 1);
 //            notifyItemRemoved(moviesList.size());
 //            notifyDataSetChanged();

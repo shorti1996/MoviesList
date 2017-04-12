@@ -82,7 +82,19 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
 
     @Override
     public void onRefresh() {
-
+        setPage(0);
+        Realm realm = Realm.getDefaultInstance();
+        mMoviesAdapter.clearMoviesList();
+        // DONE TODO Czy tu sie wywalaja na pewno Movie?
+        realm.executeTransaction(realmInstance -> {
+            realmInstance.where(MoviesData.class).findAll().deleteAllFromRealm();
+            realmInstance.where(Movie.class).findAll().deleteAllFromRealm();
+        });
+        for (Movie m :
+                realm.where(Movie.class).findAll()) {
+            Log.e("Halo. Cos sie zepsulo.", m.getTitle());
+        }
+        loadNextPage();
     }
 
 //    public void addDummyMovieToRealm() {
