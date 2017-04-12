@@ -43,7 +43,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
 
-        supportPostponeEnterTransition();
+//        supportPostponeEnterTransition();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -68,19 +68,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         Glide.with(getBaseContext())
                 .load(mMovie.getBackdropImageUri())
-                .listener(new RequestListener<String, GlideDrawable>() {
-                    @Override
-                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        supportStartPostponedEnterTransition();
-                        return false;
-                    }
-                })
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+//                .listener(new RequestListener<String, GlideDrawable>() {
+//                    @Override
+//                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+//                        supportStartPostponedEnterTransition();
+//                        return false;
+//                    }
+//                })
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(backdropIv);
 
         toolbar.setTitle(mMovie.getTitle());
