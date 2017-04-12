@@ -60,4 +60,13 @@ public class MoviesData extends RealmObject {
         this.totalPages = totalPages;
     }
 
+    public static MoviesData getEmptyMoviesData() {
+        MoviesData moviesData = new MoviesData();
+        moviesData.page = -1;
+        moviesData.results = new RealmList<>();
+        moviesData.totalResults = 0;
+        moviesData.totalPages = 0;
+        return  moviesData;
+    }
+
 }

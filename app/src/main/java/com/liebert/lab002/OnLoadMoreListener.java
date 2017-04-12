@@ -6,4 +6,5 @@ package com.liebert.lab002;
 
 public interface OnLoadMoreListener {
     void onLoadMore();
+    void onRefresh();
 }

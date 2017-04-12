@@ -80,6 +80,11 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
         loadNextPage();
     }
 
+    @Override
+    public void onRefresh() {
+
+    }
+
 //    public void addDummyMovieToRealm() {
 //        Movie dummyMovie = new Movie();
 //        dummyMovie.setId(Movie.dummyId);
@@ -145,6 +150,16 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
         Observable<MoviesData> discoverMovies = themoviedbService.getMoviesDiscover(ThemoviedbService.API_KEY, getPage())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .onErrorReturn(throwable -> {
+                    setPage(getPage()-1);
+                    Log.e("KURWA", "NETWORK ERRRRROR");
+                    return MoviesData.getEmptyMoviesData();
+                })
+//                .doOnError(throwable -> {
+//                    Log.e("KURWA", "NETWORK ERRRRROR");
+//                    Toast.makeText(mContext, mContext.getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+//                    throwable.printStackTrace();
+//                })
                 .doOnComplete(() -> {
                     if (mMoviesAdapter != null) {
 //                        mMoviesAdapter.notifyDataSetChanged();
@@ -166,6 +181,10 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
         loadNextPage();
     }
 
+    /**
+     * Try to load MoviesData of correct page from realm.
+     * If there is no data, request it from API, write to realm and retry loading from cache.
+     */
     public void loadNextPage() {
         nextPage();
         MoviesData moviesData = mRealm.where(MoviesData.class).equalTo("page", getPage()).findFirst();

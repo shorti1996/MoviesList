@@ -64,7 +64,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
 
-        Movie mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
+        mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
 
         Glide.with(getBaseContext())
                 .load(mMovie.getBackdropImageUri())
