@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -62,6 +63,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public TextView title, year, genre;
         public ImageView backdropIv;
+        public View tintView;
         public ProgressBar progressBar;
 
         public MovieViewHolder(View view) {
@@ -71,6 +73,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             year = (TextView) view.findViewById(R.id.year_tv);
             backdropIv = (ImageView) view.findViewById(R.id.backdrop_iv);
             progressBar = (ProgressBar) view.findViewById(R.id.movie_row_image_loading_iv);
+            tintView = view.findViewById(R.id.backdrop_tint);
 
             view.setOnClickListener(this);
         }
@@ -84,8 +87,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             Intent intent = new Intent(mContext, MovieDetailsActivity.class);
             // Pass data object in the bundle and populate details activity.
             intent.putExtra(MovieDetailsActivity.EXTRA_MOVIE, clickedMovie.getId());
+            Pair<View, String> p1 = Pair.create(backdropIv, "movie_details_backdrop");
+            Pair<View, String> p2 = Pair.create(tintView, "movie_details_tint");
             ActivityOptionsCompat options = ActivityOptionsCompat.
-                    makeSceneTransitionAnimation((Activity) mContext, backdropIv, "movie_details");
+                    makeSceneTransitionAnimation((Activity) mContext, p1, p2);
             mContext.startActivity(intent, options.toBundle());
 /*            mCursor.moveToPosition(adapterPosition);
             long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
