@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         mMoviesAdapter.setLinearLayoutManager((LinearLayoutManager) mLayoutManager);
 
         mMoviesPresenter = new DiscoverMoviesPresenter(mMoviesAdapter, mRealm, this);
+        mMoviesAdapter.mSwipeRefreshLayout.setOnRefreshListener(mMoviesPresenter);
         mMoviesAdapter.setOnLoadMoreListener(mMoviesPresenter);
         mMoviesPresenter.loadNextPage();
 
@@ -87,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
             getGenresFromApi();
         } else {
             for (Genre g : genres) {
-//                titlesTv.append(r.getTitle() + "\n");
                 Log.d("FROM CACHE", g.toString());
             }
         }
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(genresList -> Observable.fromIterable(genresList.getGenres()))
                 .doOnComplete(() -> {
-                    Log.e("API CALL COMPLETED", "Genres downloaded");
+                    Log.d("API CALL COMPLETED", "Genres downloaded");
                 });
 
         genresObservable.subscribe(genre -> {
@@ -131,90 +131,6 @@ public class MainActivity extends AppCompatActivity {
             });
             Log.d("Genre", genre.toString());
         });
-    }
-
-    private void getMoviesFromApi(){
-        // this makes gson compatible with mRealm
-        // otherwise gson won't work with the model
-        Type token = new TypeToken<RealmList<RealmInt>>(){}.getType();
-        Gson gson = new GsonBuilder()
-                .setExclusionStrategies(new ExclusionStrategy() {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes f) {
-                        return f.getDeclaringClass().equals(RealmObject.class);
-                    }
-
-                    @Override
-                    public boolean shouldSkipClass(Class<?> clazz) {
-                        return false;
-                    }
-                })
-                .registerTypeAdapter(token, new TypeAdapter<RealmList<RealmInt>>() {
-
-                    @Override
-                    public void write(JsonWriter out, RealmList<RealmInt> value) throws IOException {
-                        // Ignore
-                    }
-
-                    @Override
-                    public RealmList<RealmInt> read(JsonReader in) throws IOException {
-                        RealmList<RealmInt> list = new RealmList<RealmInt>();
-                        in.beginArray();
-                        while (in.hasNext()) {
-                            list.add(new RealmInt(in.nextInt()));
-                        }
-                        in.endArray();
-                        return list;
-                    }
-                })
-                .create();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(ThemoviedbService.SERVICE_ENDPOINT)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        ThemoviedbService themoviedbService = retrofit.create(ThemoviedbService.class);
-        Observable<MoviesData> discoverMovies = themoviedbService.getMoviesDiscover(ThemoviedbService.API_KEY, 2)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(() -> {
-                    if (mMoviesAdapter != null) {
-                        mMoviesAdapter.notifyDataSetChanged();
-                    }
-                    Log.e("API CALL COMPLETED", "All movies listed");
-                });
-
-        discoverMovies.subscribe(moviesData -> {
-                    mRealm.beginTransaction();
-                    mRealm.copyToRealmOrUpdate(moviesData);
-                    mRealm.commitTransaction();
-
-                    Log.d("MoviesData", "" + moviesData.getPage());
-
-                    for (Movie m : moviesData.getMovies()) {
-                        Log.d("Movie", m.getTitle());
-                    }
-
-                });
-    }
-
-    private List<Movie> writeMoviesToRealm(MoviesData moviesData) {
-        List<Movie> movies = moviesData.getMovies();
-        mRealm.beginTransaction();
-        mRealm.copyToRealmOrUpdate(movies);
-        mRealm.commitTransaction();
-        return movies;
-    }
-
-    private List<Movie> readMoviesFromRealm() {
-        RealmResults<MoviesData> realmResults = mRealm.where(MoviesData.class).findAllSorted("page", Sort.ASCENDING);
-        List<Movie> movies = new ArrayList<>();
-        for (MoviesData md : realmResults) {
-            movies.addAll(md.getMovies());
-        }
-        return movies;
     }
 
     public Realm getRealm(){

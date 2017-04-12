@@ -30,8 +30,7 @@ import com.liebert.lab002.Models.Movie;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-        implements SwipeRefreshLayout.OnRefreshListener{
+public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_TYPE_MOVIE_LEFT = 0;
     private final int VIEW_TYPE_MOVIE_RIGHT = 1;
@@ -47,12 +46,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private OnLoadMoreListener onLoadMoreListener;
     private LinearLayoutManager mLinearLayoutManager;
     public SwipeRefreshLayout mSwipeRefreshLayout;
-
-    @Override
-    public void onRefresh() {
-//        Toast.makeText(mContext, mContext.getString(R.string.refresh_movies_toast), Toast.LENGTH_SHORT).show();
-        onLoadMoreListener.onRefresh();
-    }
 
     private static class ProgressViewHolder extends RecyclerView.ViewHolder {
         private ProgressBar loadingPb;
@@ -104,7 +97,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.moviesList = new ArrayList<>();
         this.mContext = context;
         this.mSwipeRefreshLayout = swipeRefreshLayout;
-        mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
     public void setOnLoadMoreListener(OnLoadMoreListener listener) {
@@ -199,24 +191,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public void setProgressMore(boolean isProgress) {
-        if (isProgress) {
-            // never update UI directly from worker thread
-            new Handler().post(() -> {
-                //in MainActivity
-//                moviesList.add(null);
-
-                notifyItemInserted(moviesList.size()); //so on the last position because one for loading view is added
-//                notifyDataSetChanged();
-            });
-        } else {
-            //TODO Clean this up
-            isMoreLoading = false;
-            mSwipeRefreshLayout.setRefreshing(false);
-//            moviesList.remove(moviesList.size() - 1);
-//            notifyItemRemoved(moviesList.size());
-//            notifyDataSetChanged();
-        }
+    public void setIsMoreLoading(boolean isProgress) {
+        isMoreLoading = isProgress;
     }
 
     @Override

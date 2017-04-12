@@ -1,8 +1,8 @@
 package com.liebert.lab002;
 
 import android.content.Context;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -28,7 +28,6 @@ import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
-import io.realm.RealmResults;
 import io.realm.Sort;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -38,7 +37,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by shorti1996 on 11.04.2017.
  */
 
-public class DiscoverMoviesPresenter implements OnLoadMoreListener {
+public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {
 
     Context mContext;
     private MoviesAdapter mMoviesAdapter;
@@ -65,17 +64,15 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
 
     @Override
     public void onLoadMore() {
-        Toast.makeText(mContext, mContext.getString(R.string.loading_more_movies_toast), Toast.LENGTH_SHORT).show();
-
-//        addDummyMovieToRealm();
-//        mMoviesAdapter.swapMoviesList(readMoviesFromRealm());
+//        Toast.makeText(mContext, mContext.getString(R.string.loading_more_movies_toast), Toast.LENGTH_SHORT).show();
         Movie dummyMovie = new Movie();
         dummyMovie.setId(Movie.dummyId);
         dummyMovie.setIsDummy(true);
         List<Movie> newList = mMoviesAdapter.getMoviesList();
         newList.add(dummyMovie);
         mMoviesAdapter.swapMoviesList(newList);
-        mMoviesAdapter.setProgressMore(true);
+        mMoviesAdapter.setIsMoreLoading(true);
+//        mMoviesAdapter.notifyItemInserted(mMoviesAdapter.getItemCount()); //so on the last position because one for loading view is added
         mMoviesAdapter.notifyDataSetChanged();
         loadNextPage();
     }
@@ -84,8 +81,6 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
     public void onRefresh() {
         setPage(0);
         Realm realm = Realm.getDefaultInstance();
-        mMoviesAdapter.clearMoviesList();
-        // DONE TODO Czy tu sie wywalaja na pewno Movie?
         realm.executeTransaction(realmInstance -> {
             realmInstance.where(MoviesData.class).findAll().deleteAllFromRealm();
             realmInstance.where(Movie.class).findAll().deleteAllFromRealm();
@@ -94,7 +89,8 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
                 realm.where(Movie.class).findAll()) {
             Log.e("Halo. Cos sie zepsulo.", m.getTitle());
         }
-        loadNextPage();
+        mMoviesAdapter.clearMoviesList();
+//        loadNextPage();
     }
 
 //    public void addDummyMovieToRealm() {
@@ -116,7 +112,7 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
 //        });
 //    }
 
-    public void getMoviesFromApi(){
+    public void getMoviesFromApi() {
         // this makes gson compatible with mRealm
         // otherwise gson won't work with the model
         Type token = new TypeToken<RealmList<RealmInt>>(){}.getType();
@@ -184,11 +180,11 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
             mRealm.copyToRealmOrUpdate(moviesData);
             mRealm.commitTransaction();
 
-            onNextPageDownloaded(moviesData.getPage());
+            onNextPageDownloaded();
         });
     }
 
-    public void onNextPageDownloaded(int page) {
+    public void onNextPageDownloaded() {
         setPage(getPage()-1);
         loadNextPage();
     }
@@ -210,25 +206,12 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener {
             for (MoviesData md : realmResults) {
                 movieList.addAll(md.getMovies());
             }
+            //kind of success
             mMoviesAdapter.swapMoviesList(movieList);
             mMoviesAdapter.notifyDataSetChanged();
-
-            mMoviesAdapter.setProgressMore(false);
+            mMoviesAdapter.setIsMoreLoading(false);
+            mMoviesAdapter.mSwipeRefreshLayout.setRefreshing(false);
         }
-//        return mRealm.where(MoviesData.class).equalTo("page", getPage()).findFirst().getMovies().size();
     }
-
-//    private int getStart() {
-//        return (this.getPage() - 1) * PAGE_SIZE;
-//    }
-//
-//    private int getEnd() {
-//        return getStart() + PAGE_SIZE;
-//    }
-//
-//    private void downloadMoreMovies() {
-//        nextPage();
-//        getMoviesFromApi();
-//    }
 
 }
