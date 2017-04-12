@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -29,7 +30,8 @@ import com.liebert.lab002.Models.Movie;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+        implements SwipeRefreshLayout.OnRefreshListener{
 
     private final int VIEW_TYPE_MOVIE_LEFT = 0;
     private final int VIEW_TYPE_MOVIE_RIGHT = 1;
@@ -44,6 +46,13 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Context mContext;
     private OnLoadMoreListener onLoadMoreListener;
     private LinearLayoutManager mLinearLayoutManager;
+    public SwipeRefreshLayout mSwipeRefreshLayout;
+
+    @Override
+    public void onRefresh() {
+        Toast.makeText(mContext, mContext.getString(R.string.refresh_movies_toast), Toast.LENGTH_SHORT).show();
+
+    }
 
     private static class ProgressViewHolder extends RecyclerView.ViewHolder {
         private ProgressBar loadingPb;
@@ -91,9 +100,11 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    public MoviesAdapter(/*List<Movie> moviesList,*/ Context context) {
+    public MoviesAdapter(/*List<Movie> moviesList,*/ Context context, SwipeRefreshLayout swipeRefreshLayout) {
         this.moviesList = new ArrayList<>();
         this.mContext = context;
+        this.mSwipeRefreshLayout = swipeRefreshLayout;
+        mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
     public void setOnLoadMoreListener(OnLoadMoreListener listener) {

@@ -1,5 +1,6 @@
 package com.liebert.lab002;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -46,8 +47,8 @@ import static io.reactivex.internal.operators.observable.ObservableBlockingSubsc
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.titles_tv) TextView titlesTv;
     @BindView(R.id.movies_rv) RecyclerView moviesRv;
+    @BindView(R.id.main_swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
 
     Realm mRealm;
     private MoviesAdapter mMoviesAdapter;
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
         loadGenres();
 
-        mMoviesAdapter = new MoviesAdapter(this);
+        mMoviesAdapter = new MoviesAdapter(this, mSwipeRefreshLayout);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         moviesRv.setLayoutManager(mLayoutManager);
         moviesRv.setItemAnimator(new DefaultItemAnimator());

@@ -3,6 +3,7 @@
 
     <string name="loading_more_movies_text">Loading more movies just for you</string>
     <string name="loading_more_movies_toast">Loading more movies…</string>
+    <string name="refresh_movies_toast">Refreshing movies</string>
     <string name="title_activity_movie_details">MovieDetailsActivity</string>
     <string name="network_error">Network error</string>
     <string name="large_text">
