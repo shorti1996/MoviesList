@@ -30,6 +30,7 @@ import com.liebert.lab002.Services.ThemoviedbService;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -47,26 +48,26 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by shorti1996 on 11.04.2017.
  */
 
-public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {
+class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {
 
-    Context mContext;
+    private Context mContext;
     private MoviesAdapter mMoviesAdapter;
     private Realm mRealm;
 
     private int page = 0;
     private Paint p = new Paint();
 
-    public int getPage() {
+    private int getPage() {
         return page;
     }
-    public void setPage(int page) {
+    private void setPage(int page) {
         this.page = page;
     }
-    public void nextPage() {
+    private void nextPage() {
         this.page = getPage() + 1;
     }
 
-    public DiscoverMoviesPresenter(MoviesAdapter moviesAdapter, Realm realm, Context context) {
+    DiscoverMoviesPresenter(MoviesAdapter moviesAdapter, Realm realm, Context context) {
         this.mMoviesAdapter = moviesAdapter;
         this.mRealm = realm;
         this.mContext = context;
@@ -93,36 +94,17 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefresh
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realmInstance -> {
             realmInstance.where(MoviesData.class).findAll().deleteAllFromRealm();
-            realmInstance.where(Movie.class).findAll().deleteAllFromRealm();
+            realmInstance.where(Movie.class).notEqualTo("seen", true).findAll().deleteAllFromRealm();
         });
         for (Movie m :
                 realm.where(Movie.class).findAll()) {
-            Log.e("Halo. Cos sie zepsulo.", m.getTitle());
+            Log.e("Movie left in realm", m.getTitle());
         }
         mMoviesAdapter.clearMoviesList();
 //        loadNextPage();
     }
 
-//    public void addDummyMovieToRealm() {
-//        Movie dummyMovie = new Movie();
-//        dummyMovie.setId(Movie.dummyId);
-//        dummyMovie.setIsDummy(true);
-//        mRealm.executeTransaction(realm -> {
-//            realm.copyToRealmOrUpdate(dummyMovie);
-//        });
-////        mRealm.beginTransaction();
-////        mRealm.copyToRealmOrUpdate(dummyMovie);
-////        mRealm.commitTransaction();
-//    }
-
-//    public void removeDummyMovieFromRealm() {
-//        mRealm.executeTransaction(realm -> {
-//            RealmResults<Movie> result = realm.where(Movie.class).equalTo("is_dummy", true).findAll();
-//            result.deleteAllFromRealm();
-//        });
-//    }
-
-    public void getMoviesFromApi() {
+    private void getMoviesFromApi() {
         // this makes gson compatible with mRealm
         // otherwise gson won't work with the model
         Type token = new TypeToken<RealmList<RealmInt>>(){}.getType();
@@ -170,7 +152,7 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefresh
                 .observeOn(AndroidSchedulers.mainThread())
                 .onErrorReturn(throwable -> {
                     setPage(getPage()-1);
-                    Log.e("KURWA", "NETWORK ERRRRROR");
+                    Log.e("BAD THINGS", "NETWORK ERRRRROR");
                     return MoviesData.getEmptyMoviesData();
                 })
 //                .doOnError(throwable -> {
@@ -186,6 +168,32 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefresh
                 });
 
         discoverMovies.subscribe(moviesData -> {
+//            mRealm.executeTransaction(realm -> {
+//                for (Movie newMovie : moviesData.getMovies()) {
+//                    if (realm.where(Movie.class).equalTo("id", newMovie.getId()).count() == 0) {
+//                        // there are no objects with this `Id`
+//                        realm.copyToRealm(newMovie);
+//                    }
+//                }
+//            });
+//            mRealm.beginTransaction();
+//            mRealm.copyToRealmOrUpdate(moviesData);
+//            mRealm.commitTransaction();
+            List<Movie> moviesToRemove = new LinkedList<Movie>();
+            for (Movie newMovie : moviesData.getMovies()) {
+                if (mRealm.where(Movie.class).equalTo("id", newMovie.getId()).count() == 0) {
+                    // there are no objects with this `Id`
+//                    mRealm.beginTransaction();
+//                    mRealm.copyToRealm(newMovie);
+//                    mRealm.commitTransaction();
+                } else {
+                    moviesToRemove.add(newMovie);
+                }
+            }
+            for (Movie m : moviesToRemove) {
+                Movie movieAlreadyInRealm = mRealm.where(Movie.class).equalTo("id", m.getId()).findFirst();
+                moviesData.getMovies().set(moviesData.getMovies().indexOf(m), movieAlreadyInRealm);
+            }
             mRealm.beginTransaction();
             mRealm.copyToRealmOrUpdate(moviesData);
             mRealm.commitTransaction();
@@ -194,7 +202,21 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefresh
         });
     }
 
-    public void onNextPageDownloaded() {
+//    private void removeFromRealmList(int position) {
+//        mRealm.executeTransaction(realm ->  {
+//            Movie movie = realm.where(Movie.class).equalTo("id", ).findFirst();
+//            Iterator<A> iterator = b.getRealmList().iterator();
+//            while(iterator.hasNext()) {
+//                A a = iterator.next();
+//                if(a.getId().equals(idToDelete)) {
+//                    iterator.remove(); // removes from realm list, but not from Realm
+//                    break;
+//                }
+//            }
+//        });
+//    }
+
+    private void onNextPageDownloaded() {
         setPage(getPage()-1);
         loadNextPage();
     }
@@ -203,7 +225,7 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefresh
      * Try to load MoviesData of correct page from realm.
      * If there is no data, request it from API, write to realm and retry loading from cache.
      */
-    public void loadNextPage() {
+    void loadNextPage() {
         nextPage();
         MoviesData moviesData = mRealm.where(MoviesData.class).equalTo("page", getPage()).findFirst();
         if (moviesData == null || (moviesData != null && moviesData.getMovies().size() == 0)) {
@@ -243,7 +265,7 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefresh
         mMoviesAdapter.notifyItemChanged(position);
     }
 
-    public void initSwipe(RecyclerView recyclerView){
+    void initSwipe(RecyclerView recyclerView){
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper
                 .SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 

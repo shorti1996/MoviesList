@@ -98,7 +98,15 @@ public class Movie extends RealmObject {
         this.seen = seen;
     }
 
-/*    public String getPosterPath() {
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Movie) {
+            return ((Movie) obj).getId().equals(this.getId());
+        }
+        return super.equals(obj);
+    }
+
+    /*    public String getPosterPath() {
         return posterPath;
     }
 
