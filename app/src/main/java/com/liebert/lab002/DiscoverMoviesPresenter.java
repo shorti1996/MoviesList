@@ -98,7 +98,7 @@ class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefreshLayout.
         });
         for (Movie m :
                 realm.where(Movie.class).findAll()) {
-            Log.e("Movie left in realm", m.getTitle());
+            Log.d("Movie left in realm", m.getTitle());
         }
         mMoviesAdapter.clearMoviesList();
 //        loadNextPage();
@@ -179,24 +179,19 @@ class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefreshLayout.
 //            mRealm.beginTransaction();
 //            mRealm.copyToRealmOrUpdate(moviesData);
 //            mRealm.commitTransaction();
-            List<Movie> moviesToRemove = new LinkedList<Movie>();
+            List<Movie> movieDuplicates = new LinkedList<Movie>();
             for (Movie newMovie : moviesData.getMovies()) {
-                if (mRealm.where(Movie.class).equalTo("id", newMovie.getId()).count() == 0) {
-                    // there are no objects with this `Id`
-//                    mRealm.beginTransaction();
-//                    mRealm.copyToRealm(newMovie);
-//                    mRealm.commitTransaction();
-                } else {
-                    moviesToRemove.add(newMovie);
+                if (mRealm.where(Movie.class).equalTo("id", newMovie.getId()).count() > 0) {
+                    movieDuplicates.add(newMovie);
                 }
             }
-            for (Movie m : moviesToRemove) {
+            for (Movie m : movieDuplicates) {
                 Movie movieAlreadyInRealm = mRealm.where(Movie.class).equalTo("id", m.getId()).findFirst();
                 moviesData.getMovies().set(moviesData.getMovies().indexOf(m), movieAlreadyInRealm);
             }
-            mRealm.beginTransaction();
-            mRealm.copyToRealmOrUpdate(moviesData);
-            mRealm.commitTransaction();
+            mRealm.executeTransaction(realm -> {
+                mRealm.copyToRealmOrUpdate(moviesData);
+            });
 
             onNextPageDownloaded();
         });
