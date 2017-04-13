@@ -7,7 +7,6 @@ package com.liebert.lab002;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,13 +18,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.liebert.lab002.Helpers.OnLoadMoreListener;
 import com.liebert.lab002.Models.Movie;
 
 import java.util.ArrayList;
@@ -47,6 +46,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private OnLoadMoreListener onLoadMoreListener;
     private LinearLayoutManager mLinearLayoutManager;
     public SwipeRefreshLayout mSwipeRefreshLayout;
+
+    public void removeItem(int position) {
+
+    }
 
     private static class ProgressViewHolder extends RecyclerView.ViewHolder {
         private ProgressBar loadingPb;
@@ -144,13 +147,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.mLinearLayoutManager=linearLayoutManager;
     }
 
-
     @Override
     public int getItemViewType(int position) {
         return moviesList.get(position).getIsDummy() ? VIEW_TYPE_LOADING : VIEW_TYPE_MOVIE_LEFT;
     }
-
-
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

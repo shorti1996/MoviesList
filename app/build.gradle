@@ -49,6 +49,9 @@ dependencies {
     compile "com.android.support:appcompat-v7:$supportLibVersion"
     compile "com.android.support:design:$supportLibVersion"
     compile "com.android.support:recyclerview-v7:$supportLibVersion"
+    compile "com.android.support:cardview-v7:$supportLibVersion"
+
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
@@ -80,8 +83,6 @@ dependencies {
 
     ///movies api wrapper
     //    compile group: 'info.movito', name: 'themoviedbapi', version:'1.4'
-
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
     testCompile 'junit:junit:4.12'
 }
