@@ -74,6 +74,10 @@ public class Movie extends RealmObject {
     @Expose
     private Double voteAverage;
 
+    @SerializedName("user_vote")
+    @Expose
+    private Double userVote = 0.d;
+
     @SerializedName("is_dummy")
     @Expose
     private boolean isDummy = false;
@@ -81,6 +85,10 @@ public class Movie extends RealmObject {
     @SerializedName("seen")
     @Expose
     private boolean seen = false;
+
+    @SerializedName("modified")
+    @Expose
+    private boolean modified = false;
 
     public boolean getIsDummy() {
         return isDummy;
@@ -95,7 +103,25 @@ public class Movie extends RealmObject {
     }
 
     public void setSeen(boolean seen) {
+        this.modified = true;
         this.seen = seen;
+    }
+
+    public boolean getModified() {
+        return this.modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
+    }
+
+    public void setUserVote(Double userVote) {
+        this.modified = true;
+        this.userVote = userVote;
+    }
+
+    public Double getUserVote() {
+        return userVote;
     }
 
     @Override
@@ -106,13 +132,13 @@ public class Movie extends RealmObject {
         return super.equals(obj);
     }
 
-    /*    public String getPosterPath() {
-        return posterPath;
+    public String getFirstGenre() {
+        return Utils.translateGenre(Realm.getDefaultInstance(), getGenreIds().get(0).getInt());
     }
 
-    public void setPosterPath(String posterPath) {
-        this.posterPath = posterPath;
-    }*/
+    public String getBackdropImageUri() {
+        return ThemoviedbService.BACKDROP_IMAGE_ENDPOINT + getBackdropPath();
+    }
 
     public Boolean getAdult() {
         return adult;
@@ -216,14 +242,6 @@ public class Movie extends RealmObject {
 
     public void setVoteAverage(Double voteAverage) {
         this.voteAverage = voteAverage;
-    }
-
-    public String getFirstGenre() {
-        return Utils.translateGenre(Realm.getDefaultInstance(), getGenreIds().get(0).getInt());
-    }
-
-    public String getBackdropImageUri() {
-        return ThemoviedbService.BACKDROP_IMAGE_ENDPOINT + getBackdropPath();
     }
 
 }

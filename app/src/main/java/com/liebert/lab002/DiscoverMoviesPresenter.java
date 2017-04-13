@@ -94,7 +94,7 @@ class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefreshLayout.
         Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realmInstance -> {
             realmInstance.where(MoviesData.class).findAll().deleteAllFromRealm();
-            realmInstance.where(Movie.class).notEqualTo("seen", true).findAll().deleteAllFromRealm();
+            realmInstance.where(Movie.class).notEqualTo("modified", true).findAll().deleteAllFromRealm();
         });
         for (Movie m :
                 realm.where(Movie.class).findAll()) {
@@ -196,20 +196,6 @@ class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefreshLayout.
             onNextPageDownloaded();
         });
     }
-
-//    private void removeFromRealmList(int position) {
-//        mRealm.executeTransaction(realm ->  {
-//            Movie movie = realm.where(Movie.class).equalTo("id", ).findFirst();
-//            Iterator<A> iterator = b.getRealmList().iterator();
-//            while(iterator.hasNext()) {
-//                A a = iterator.next();
-//                if(a.getId().equals(idToDelete)) {
-//                    iterator.remove(); // removes from realm list, but not from Realm
-//                    break;
-//                }
-//            }
-//        });
-//    }
 
     private void onNextPageDownloaded() {
         setPage(getPage()-1);
