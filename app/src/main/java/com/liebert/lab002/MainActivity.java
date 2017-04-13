@@ -8,6 +8,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.support.design.internal.BottomNavigationMenuView;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.movies_rv) RecyclerView moviesRv;
     @BindView(R.id.main_swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
+    @BindView(R.id.navigation_view_main) BottomNavigationView mBottomNavigationView;
 
     Realm mRealm;
     private MoviesAdapter mMoviesAdapter;
