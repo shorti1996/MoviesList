@@ -1,22 +1,18 @@
 package com.liebert.lab002;
 
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.liebert.lab002.Models.Movie;
 
 import butterknife.BindView;
@@ -24,7 +20,7 @@ import butterknife.ButterKnife;
 import io.realm.Realm;
 
 
-public class MovieDetailsActivity extends AppCompatActivity {
+public class MovieDetailsActivity extends AppCompatActivity implements RatingBar.OnRatingBarChangeListener {
 
     int movieId;
     Realm mRealm;
@@ -37,6 +33,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     @BindView(R.id.description_tv)
     TextView descriptionTv;
+
+    @BindView(R.id.vote_rb)
+    RatingBar voteRb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +86,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         toolbarLayout.setTitle(mMovie.getTitle());
 
         descriptionTv.setText(mMovie.getOverview());
+        initRating();
+        voteRb.setOnRatingBarChangeListener(this);
     }
 
     @Override
@@ -112,5 +113,33 @@ public class MovieDetailsActivity extends AppCompatActivity {
             movieId = (int) savedInstanceState.getSerializable(EXTRA_MOVIE);
         }
         return movieId;
+    }
+
+    public void initRating() {
+        double userVote = mMovie.getUserVote();
+        if (userVote != 0) {
+            voteRb.setRating(movieVoteToRating(voteRb, userVote));
+        } else {
+            float averageVote = Float.parseFloat(mMovie.getVoteAverage().toString());
+            voteRb.setRating(averageVote);
+        }
+    }
+
+    @Override
+    public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+        if (!fromUser) {
+            return;
+        }
+        mRealm.executeTransaction(realm -> {
+            mMovie.setUserVote(ratingToMovieVote(ratingBar));
+        });
+    }
+
+    public double ratingToMovieVote(RatingBar ratingBar) {
+        return (double)((ratingBar.getRating() / ratingBar.getNumStars()) * 10);
+    }
+
+    public float movieVoteToRating(RatingBar ratingBar, double movieVote) {
+        return (float) movieVote/10 * ratingBar.getNumStars();
     }
 }

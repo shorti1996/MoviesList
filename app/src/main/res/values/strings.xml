@@ -99,4 +99,6 @@
     <string name="title_notifications">Notifications</string>
     <string name="title_discover">Discover</string>
     <string name="title_seen">Seen</string>
+    <string name="title_description">Description</string>
+    <string name="title_vote">Rating</string>
 </resources>
