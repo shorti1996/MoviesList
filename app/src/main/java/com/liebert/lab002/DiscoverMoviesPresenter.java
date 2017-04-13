@@ -215,4 +215,23 @@ public class DiscoverMoviesPresenter implements OnLoadMoreListener, SwipeRefresh
         }
     }
 
+    public void removeItem(int position) {
+        int movieId = mMoviesAdapter.getMoviesList().get(position).getId();
+        mMoviesAdapter.getMoviesList().remove(position);
+        mRealm.executeTransaction(realm -> {
+            realm.where(Movie.class).equalTo("id", movieId).findAll().deleteAllFromRealm();
+        });
+        mMoviesAdapter.notifyItemRemoved(position);
+    }
+
+    public void markItem(int position) {
+        int movieId = mMoviesAdapter.getMoviesList().get(position).getId();
+        mRealm.executeTransaction(realm -> {
+            Movie movie = realm.where(Movie.class).equalTo("id", movieId).findFirst();
+            movie.setSeen(!movie.getSeen());
+            realm.copyToRealmOrUpdate(movie);
+        });
+        mMoviesAdapter.notifyItemChanged(position);
+    }
+
 }

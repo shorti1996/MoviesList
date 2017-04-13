@@ -50,9 +50,6 @@ public class MainActivity extends AppCompatActivity {
     private MoviesAdapter mMoviesAdapter;
     private DiscoverMoviesPresenter mMoviesPresenter;
 
-    private int edit_position;
-    private View view;
-    private boolean add = false;
     private Paint p = new Paint();
 
     @Override
@@ -154,10 +151,9 @@ public class MainActivity extends AppCompatActivity {
                 int position = viewHolder.getAdapterPosition();
 
                 if (direction == ItemTouchHelper.LEFT){
-                    mMoviesAdapter.removeItem(position);
+                    mMoviesPresenter.removeItem(position);
                 } else {
-                    removeView();
-                    edit_position = position;
+                    mMoviesPresenter.markItem(position);
 //                    alertDialog.setTitle("Edit Country");
 //                    et_country.setText(countries.get(position));
 //                    alertDialog.show();
@@ -206,11 +202,6 @@ public class MainActivity extends AppCompatActivity {
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(moviesRv);
-    }
-    private void removeView(){
-        if(view.getParent() != null) {
-            ((ViewGroup) view.getParent()).removeView(view);
-        }
     }
 
 }

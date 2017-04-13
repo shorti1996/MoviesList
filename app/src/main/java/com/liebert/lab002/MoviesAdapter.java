@@ -45,11 +45,8 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Context mContext;
     private OnLoadMoreListener onLoadMoreListener;
     private LinearLayoutManager mLinearLayoutManager;
+    private RecyclerView mRecyclerView;
     public SwipeRefreshLayout mSwipeRefreshLayout;
-
-    public void removeItem(int position) {
-
-    }
 
     private static class ProgressViewHolder extends RecyclerView.ViewHolder {
         private ProgressBar loadingPb;
@@ -68,6 +65,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public ImageView backdropIv;
         public View tintView;
         public ProgressBar progressBar;
+        public ImageView eyeIv;
 
         public MovieViewHolder(View view) {
             super(view);
@@ -77,6 +75,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             backdropIv = (ImageView) view.findViewById(R.id.backdrop_iv);
             progressBar = (ProgressBar) view.findViewById(R.id.movie_row_image_loading_iv);
             tintView = view.findViewById(R.id.backdrop_tint);
+            eyeIv = (ImageView) view.findViewById(R.id.eye_iv);
 
             view.setOnClickListener(this);
         }
@@ -124,8 +123,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return this.moviesList;
     }
 
-    public void setRecyclerView(RecyclerView mView){
-        mView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+    public void setRecyclerView(RecyclerView view){
+        mRecyclerView = view;
+        view.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -175,6 +175,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 //        holder.genre.setText(String.valueOf(movie.getGenreIds().get(0).getInt()));
             movieViewHolder.genre.setText(movie.getFirstGenre());
             movieViewHolder.year.setText(movie.getReleaseDate());
+            movieViewHolder.eyeIv.setVisibility(movie.getSeen() ? View.VISIBLE : View.GONE);
 
             Glide.with(mContext)
                     .load(movie.getBackdropImageUri())

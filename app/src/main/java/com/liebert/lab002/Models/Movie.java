@@ -77,9 +77,10 @@ public class Movie extends RealmObject {
     @SerializedName("is_dummy")
     @Expose
     private boolean isDummy = false;
-//    @SerializedName("backdrop_image")
-//    @Expose
-//    private Image backdropImage;
+
+    @SerializedName("seen")
+    @Expose
+    private boolean seen = false;
 
     public boolean getIsDummy() {
         return isDummy;
@@ -87,6 +88,14 @@ public class Movie extends RealmObject {
 
     public void setIsDummy(boolean isDummy) {
         this.isDummy = isDummy;
+    }
+
+    public boolean getSeen() {
+        return seen;
+    }
+
+    public void setSeen(boolean seen) {
+        this.seen = seen;
     }
 
 /*    public String getPosterPath() {
