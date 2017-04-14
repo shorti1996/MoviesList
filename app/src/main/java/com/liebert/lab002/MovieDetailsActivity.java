@@ -120,8 +120,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements RatingBar
         if (userVote != 0) {
             voteRb.setRating(movieVoteToRating(voteRb, userVote));
         } else {
-            float averageVote = Float.parseFloat(mMovie.getVoteAverage().toString());
-            voteRb.setRating(averageVote);
+//            float averageVote = Float.parseFloat(mMovie.getVoteAverage().toString());
+            voteRb.setRating(movieVoteToRating(voteRb, mMovie.getVoteAverage()));
         }
     }
 
