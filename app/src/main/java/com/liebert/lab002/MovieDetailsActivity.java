@@ -23,6 +23,7 @@ import io.realm.Realm;
 public class MovieDetailsActivity extends AppCompatActivity implements RatingBar.OnRatingBarChangeListener {
 
     public static final String EXTRA_MOVIE = "extra_movie";
+    public static final int VOTE_MAX = 10;
 
     int movieId;
     Realm mRealm;
@@ -134,10 +135,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements RatingBar
     }
 
     public double ratingToMovieVote(RatingBar ratingBar) {
-        return (double) ((ratingBar.getRating() / ratingBar.getNumStars()) * 10);
+        return (double) ((ratingBar.getRating() / ratingBar.getNumStars()) * VOTE_MAX);
     }
 
     public float movieVoteToRating(RatingBar ratingBar, double movieVote) {
-        return (float) movieVote / 10 * ratingBar.getNumStars();
+        return (float) movieVote / VOTE_MAX * ratingBar.getNumStars();
     }
 }
