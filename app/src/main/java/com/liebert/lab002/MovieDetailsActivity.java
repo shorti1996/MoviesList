@@ -106,7 +106,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements RatingBar
         int movieId = -1;
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
-            if(extras != null) {
+            if (extras != null) {
                 movieId = extras.getInt(EXTRA_MOVIE);
             }
         } else {
@@ -130,16 +130,14 @@ public class MovieDetailsActivity extends AppCompatActivity implements RatingBar
         if (!fromUser) {
             return;
         }
-        mRealm.executeTransaction(realm -> {
-            mMovie.setUserVote(ratingToMovieVote(ratingBar));
-        });
+        mRealm.executeTransaction(realm -> mMovie.setUserVote(ratingToMovieVote(ratingBar)));
     }
 
     public double ratingToMovieVote(RatingBar ratingBar) {
-        return (double)((ratingBar.getRating() / ratingBar.getNumStars()) * 10);
+        return (double) ((ratingBar.getRating() / ratingBar.getNumStars()) * 10);
     }
 
     public float movieVoteToRating(RatingBar ratingBar, double movieVote) {
-        return (float) movieVote/10 * ratingBar.getNumStars();
+        return (float) movieVote / 10 * ratingBar.getNumStars();
     }
 }
