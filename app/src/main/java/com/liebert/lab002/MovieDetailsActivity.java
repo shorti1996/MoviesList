@@ -22,11 +22,11 @@ import io.realm.Realm;
 
 public class MovieDetailsActivity extends AppCompatActivity implements RatingBar.OnRatingBarChangeListener {
 
+    public static final String EXTRA_MOVIE = "extra_movie";
+
     int movieId;
     Realm mRealm;
     Movie mMovie;
-
-    public static final String EXTRA_MOVIE = "extra_movie";
 
     @BindView(R.id.backdrop_iv)
     ImageView backdropIv;
