@@ -52,11 +52,10 @@
 
     <include layout="@layout/content_movie_details" />
 
-    <fragment
+    <FrameLayout
         android:id="@+id/movie_details_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        class="com.liebert.lab002.MovieDetailsFragment"
         tools:layout="@layout/fragment_movie_details"
         android:layout_marginTop="8dp"
         android:layout_marginLeft="8dp"

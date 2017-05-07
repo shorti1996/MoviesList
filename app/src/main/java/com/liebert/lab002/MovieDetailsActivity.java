@@ -20,10 +20,10 @@ import butterknife.ButterKnife;
 import io.realm.Realm;
 
 
-public class MovieDetailsActivity extends AppCompatActivity implements RatingBar.OnRatingBarChangeListener {
+public class MovieDetailsActivity extends AppCompatActivity{
 
     public static final String EXTRA_MOVIE = "extra_movie";
-    public static final int VOTE_MAX = 10;
+    public static final String TAG_MOVIE_DETAILS_FRAGMENT = "movieDetailsFragment";
 
     int movieId;
     Realm mRealm;
@@ -35,13 +35,20 @@ public class MovieDetailsActivity extends AppCompatActivity implements RatingBar
     @BindView(R.id.description_tv)
     TextView descriptionTv;
 
-    @BindView(R.id.vote_rb)
-    RatingBar voteRb;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
+
+        mRealm = Realm.getDefaultInstance();
+        movieId = getMovieFromExtra(savedInstanceState);
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.movie_details_fragment, MovieDetailsFragment.newInstance(movieId), TAG_MOVIE_DETAILS_FRAGMENT)
+                    .commit();
+        }
 
 //        supportPostponeEnterTransition();
 
@@ -57,9 +64,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements RatingBar
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        mRealm = Realm.getDefaultInstance();
-        movieId = getMovieFromExtra(savedInstanceState);
 
         ButterKnife.bind(this);
         CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
@@ -87,8 +91,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements RatingBar
         toolbarLayout.setTitle(mMovie.getTitle());
 
         descriptionTv.setText(mMovie.getOverview());
-        initRating();
-        voteRb.setOnRatingBarChangeListener(this);
+
     }
 
     @Override
@@ -114,31 +117,5 @@ public class MovieDetailsActivity extends AppCompatActivity implements RatingBar
             movieId = (int) savedInstanceState.getSerializable(EXTRA_MOVIE);
         }
         return movieId;
-    }
-
-    public void initRating() {
-        double userVote = mMovie.getUserVote();
-        if (userVote != 0) {
-            voteRb.setRating(movieVoteToRating(voteRb, userVote));
-        } else {
-//            float averageVote = Float.parseFloat(mMovie.getVoteAverage().toString());
-            voteRb.setRating(movieVoteToRating(voteRb, mMovie.getVoteAverage()));
-        }
-    }
-
-    @Override
-    public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-        if (!fromUser) {
-            return;
-        }
-        mRealm.executeTransaction(realm -> mMovie.setUserVote(ratingToMovieVote(ratingBar)));
-    }
-
-    public double ratingToMovieVote(RatingBar ratingBar) {
-        return (double) ((ratingBar.getRating() / ratingBar.getNumStars()) * VOTE_MAX);
-    }
-
-    public float movieVoteToRating(RatingBar ratingBar, double movieVote) {
-        return (float) movieVote / VOTE_MAX * ratingBar.getNumStars();
     }
 }
