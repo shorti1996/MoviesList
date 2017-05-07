@@ -42,6 +42,7 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
         mRealm = Realm.getDefaultInstance();
         movieId = getMovieFromExtra(savedInstanceState);
+        mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
@@ -67,8 +68,6 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
         ButterKnife.bind(this);
         CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-
-        mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
 
         Glide.with(getBaseContext())
                 .load(mMovie.getBackdropImageUri())

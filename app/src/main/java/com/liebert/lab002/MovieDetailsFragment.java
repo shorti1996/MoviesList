@@ -53,8 +53,7 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
      * @param movieId Movie id.
      * @return A new instance of fragment MovieDetailsFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static MovieDetailsFragment newInstance(/*String param1, String param2*/int movieId) {
+    public static MovieDetailsFragment newInstance(int movieId) {
         MovieDetailsFragment fragment = new MovieDetailsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_MOVIE_ID, movieId);
