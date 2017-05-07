@@ -52,6 +52,16 @@
 
     <include layout="@layout/content_movie_details" />
 
+    <fragment
+        android:id="@+id/movie_details_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        class="com.liebert.lab002.MovieDetailsFragment"
+        tools:layout="@layout/fragment_movie_details"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_gravity="bottom"/>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
