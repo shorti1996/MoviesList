@@ -32,9 +32,6 @@ public class MovieDetailsActivity extends AppCompatActivity{
     @BindView(R.id.backdrop_iv)
     ImageView backdropIv;
 
-    @BindView(R.id.description_tv)
-    TextView descriptionTv;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +86,7 @@ public class MovieDetailsActivity extends AppCompatActivity{
         toolbar.setTitle(mMovie.getTitle());
         toolbarLayout.setTitle(mMovie.getTitle());
 
-        descriptionTv.setText(mMovie.getOverview());
+//
 
     }
 

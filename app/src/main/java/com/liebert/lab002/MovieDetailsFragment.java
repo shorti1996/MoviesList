@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RatingBar;
+import android.widget.TextView;
 
 import com.liebert.lab002.Models.Movie;
 import com.liebert.lab002.R;
@@ -29,6 +30,9 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
     @BindView(R.id.vote_rb)
     RatingBar voteRb;
 
+    @BindView(R.id.description_tv)
+    TextView descriptionTv;
+
     public static final int VOTE_MAX = 10;
 
     int movieId;
@@ -38,7 +42,6 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_MOVIE_ID = "movieId";
-    private static final String ARG_PARAM2 = "param2";
 
     private OnFragmentInteractionListener mListener;
 
@@ -83,6 +86,7 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
         ButterKnife.bind(this, view);
         voteRb.setOnRatingBarChangeListener(this);
         initRating();
+        descriptionTv.setText(mMovie.getOverview());
         return view;
     }
 

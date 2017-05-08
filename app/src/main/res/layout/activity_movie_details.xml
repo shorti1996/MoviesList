@@ -50,16 +50,16 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_movie_details" />
-
-    <FrameLayout
+    <android.support.v4.widget.NestedScrollView
         android:id="@+id/movie_details_fragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:layout="@layout/fragment_movie_details"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_gravity="bottom"/>
+        android:layout_height="match_parent"
+        android:paddingTop="0dp"
+        android:visibility="visible"
+        app:layout_anchor="@id/app_bar"
+        app:layout_anchorGravity="bottom|center_horizontal"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:layout="@layout/fragment_movie_details" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
