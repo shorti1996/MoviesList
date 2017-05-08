@@ -5,8 +5,10 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -109,8 +111,11 @@ public class MovieDetailsActivity extends AppCompatActivity{
         public Fragment getItem(int position) {
             if (position == 0) {
                 return MovieDetailsFragment.newInstance(movieId);
+            }
+            if (position == 1) {
+                return MovieImagesFragment.newInstance(movieId);
             } else {
-                return MovieDetailsFragment.newInstance(movieId);
+                return null;
             }
         }
 
@@ -143,5 +148,38 @@ public class MovieDetailsActivity extends AppCompatActivity{
             movieId = (int) savedInstanceState.getSerializable(EXTRA_MOVIE);
         }
         return movieId;
+    }
+
+    /**
+     * Attach a {@link android.support.v4.app.Fragment} to a view, usually a
+     * {@link android.view.ViewGroup}. The view is provided as resource ID, as
+     * present in mypackage.R.id.
+     *
+     * @param fragment
+     *            The Fragment to attach.
+     * @param viewId
+     *            The resource ID for the view to attach the fragment to, as
+     *            found in R.id.
+     * @param addToBackStack
+     *            {@literal true} to allow the user to undo the operation with
+     *            the device's back button.
+     * @param tag
+     *            The tag name to give the Fragment as it is connected to the UI
+     * @param context
+     *            An {@link android.support.v4.app.FragmentActivity} that hosts
+     *            the fragment and the view.
+     */
+    public static void attachFragmentToView(Fragment fragment, int viewId, boolean addToBackStack, String tag, FragmentActivity context)
+    {
+        FragmentManager fragMan = context.getSupportFragmentManager();
+        FragmentTransaction transaction = fragMan.beginTransaction();
+
+        if (addToBackStack)
+        {
+            transaction.addToBackStack(null);
+        }
+
+        transaction.add(viewId, fragment, tag);
+        transaction.commit();
     }
 }

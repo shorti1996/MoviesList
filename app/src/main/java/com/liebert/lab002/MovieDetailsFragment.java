@@ -60,8 +60,6 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
         MovieDetailsFragment fragment = new MovieDetailsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_MOVIE_ID, movieId);
-        /*args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);*/
         fragment.setArguments(args);
         return fragment;
     }
@@ -75,7 +73,6 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
         }
         mRealm = Realm.getDefaultInstance();
         mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
-
     }
 
     @Override

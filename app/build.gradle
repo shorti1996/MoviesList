@@ -56,7 +56,6 @@ dependencies {
 
     //rxJava
     //rxAndroid
-    
 
     //lambda syntax
     apply plugin: 'me.tatarka.retrolambda'
@@ -69,11 +68,11 @@ dependencies {
 //    kapt 'com.jakewharton:butterknife-compiler:8.5.1'
 
     //Retrofit- HTTP client
-    
+
     //Gson- serialization
-    
+
     // Glide
-    
+
     ///movies api wrapper
     //    compile group: 'info.movito', name: 'themoviedbapi', version:'1.4'
 
