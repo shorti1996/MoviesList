@@ -17,9 +17,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.liebert.lab002.Models.Movie;
+import com.liebert.lab002.Views.SquareImageView;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.Inflater;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -85,13 +87,13 @@ public class MovieImagesFragment extends Fragment {
         return view;
     }
 
-    void attach(){
-        MovieDetailsActivity.attachFragmentToView(MovieDetailsFragment.newInstance(movieId),
-                R.id.fragment_movie_images_root,
-                false,
-                "",
-                this.getActivity());
-    }
+//    void attach(){
+//        MovieDetailsActivity.attachFragmentToView(MovieDetailsFragment.newInstance(movieId),
+//                R.id.fragment_movie_images_root,
+//                false,
+//                "",
+//                this.getActivity());
+//    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -123,20 +125,15 @@ public class MovieImagesFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ImageView iv = new ImageView(mContext);
+            SquareImageView squareImageView = new SquareImageView(mContext);
             if (convertView == null) {
-//                DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
-//                int screenWidth = metrics.widthPixels/3;
-//                iv.setLayoutParams(new GridView.LayoutParams(screenWidth/2, screenWidth/2));
-//                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 50);
-//                iv.setLayoutParams(new GridView.LayoutParams(params));
-                iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                iv.setPadding(0, 0, 0, 0);
+                squareImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                squareImageView.setPadding(0, 0, 0, 0);
             } else {
-                iv = (ImageView) convertView;
+                squareImageView = (SquareImageView) convertView;
             }
-            iv.setImageResource(mImageList.get(position));
-            return iv;
+            squareImageView.setImageResource(mImageList.get(position));
+            return squareImageView;
         }
     }
 }
