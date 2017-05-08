@@ -4,6 +4,10 @@ import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -29,6 +33,9 @@ public class MovieDetailsActivity extends AppCompatActivity{
     Realm mRealm;
     Movie mMovie;
 
+    @BindView(R.id.view_pager)
+    ViewPager mViewPager;
+
     @BindView(R.id.backdrop_iv)
     ImageView backdropIv;
 
@@ -37,33 +44,38 @@ public class MovieDetailsActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
 
+        ButterKnife.bind(this);
+
         mRealm = Realm.getDefaultInstance();
         movieId = getMovieFromExtra(savedInstanceState);
         mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.movie_details_fragment, MovieDetailsFragment.newInstance(movieId), TAG_MOVIE_DETAILS_FRAGMENT)
-                    .commit();
-        }
+        /** set the adapter for ViewPager */
+        mViewPager.setAdapter(new DetailsFragmentPagerAdapter(
+                getSupportFragmentManager()));
+
+//        if (savedInstanceState == null) {
+//            getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .add(R.id.movie_details_fragment, MovieDetailsFragment.newInstance(movieId), TAG_MOVIE_DETAILS_FRAGMENT)
+//                    .commit();
+//        }
 
 //        supportPostponeEnterTransition();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ButterKnife.bind(this);
         CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
 
         Glide.with(getBaseContext())
@@ -85,9 +97,27 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
         toolbar.setTitle(mMovie.getTitle());
         toolbarLayout.setTitle(mMovie.getTitle());
+    }
 
-//
+    class DetailsFragmentPagerAdapter extends FragmentPagerAdapter {
 
+        public DetailsFragmentPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (position == 0) {
+                return MovieDetailsFragment.newInstance(movieId);
+            } else {
+                return MovieDetailsFragment.newInstance(movieId);
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
     }
 
     @Override

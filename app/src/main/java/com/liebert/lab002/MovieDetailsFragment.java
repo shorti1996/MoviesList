@@ -86,7 +86,7 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
         ButterKnife.bind(this, view);
         voteRb.setOnRatingBarChangeListener(this);
         initRating();
-        descriptionTv.setText(mMovie.getOverview());
+//        descriptionTv.setText(mMovie.getOverview());
         return view;
     }
 
