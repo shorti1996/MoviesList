@@ -4,6 +4,7 @@ package com.liebert.lab002;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.TableLayout;
 
 import com.liebert.lab002.Models.Movie;
 import com.liebert.lab002.Views.SquareImageView;
@@ -30,8 +32,6 @@ import io.realm.Realm;
  */
 public class MovieImagesFragment extends Fragment {
 
-//    @BindView(R.id.movie_images_grid)
-//    GridView mImagesGrid;
     @BindView(R.id.movie_images_grid)
     RecyclerView mImagesGrid;
 
@@ -80,10 +80,6 @@ public class MovieImagesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_movie_images, container, false);
         ButterKnife.bind(this, view);
-
-//        mImagesGrid.setAdapter(new ImageAdapter(getContext()));
-
-
         return view;
     }
 

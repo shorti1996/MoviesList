@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -40,6 +41,9 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
     @BindView(R.id.backdrop_iv)
     ImageView backdropIv;
+
+    @BindView(R.id.movie_details_tab_layout)
+    TabLayout mTabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,9 +103,14 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
         toolbar.setTitle(mMovie.getTitle());
         toolbarLayout.setTitle(mMovie.getTitle());
+
+        mTabLayout.setupWithViewPager(mViewPager);
     }
 
     class DetailsFragmentPagerAdapter extends FragmentPagerAdapter {
+        final int PAGE_COUNT = 2;
+        //TODO use resources
+        private String[] tabTitles = {"About", "Details"};
 
         public DetailsFragmentPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -121,7 +130,12 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
         @Override
         public int getCount() {
-            return 2;
+            return PAGE_COUNT;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return tabTitles[position];
         }
     }
 
