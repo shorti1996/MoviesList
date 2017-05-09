@@ -83,7 +83,7 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
         ButterKnife.bind(this, view);
         voteRb.setOnRatingBarChangeListener(this);
         initRating();
-//        descriptionTv.setText(mMovie.getOverview());
+        descriptionTv.setText(mMovie.getOverview());
         return view;
     }
 
@@ -142,7 +142,7 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
             return;
         }
         //TODO
-//        mRealm.executeTransaction(realm -> mMovie.setUserVote(ratingToMovieVote(ratingBar)));
+        mRealm.executeTransaction(realm -> mMovie.setUserVote(ratingToMovieVote(ratingBar)));
     }
 
     public double ratingToMovieVote(RatingBar ratingBar) {
@@ -151,5 +151,11 @@ public class MovieDetailsFragment extends Fragment implements RatingBar.OnRating
 
     public float movieVoteToRating(RatingBar ratingBar, double movieVote) {
         return (float) movieVote / VOTE_MAX * ratingBar.getNumStars();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(ARG_MOVIE_ID, movieId);
     }
 }

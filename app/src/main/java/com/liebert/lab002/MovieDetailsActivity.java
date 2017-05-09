@@ -1,6 +1,7 @@
 package com.liebert.lab002;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -31,6 +32,8 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
     public static final String EXTRA_MOVIE = "extra_movie";
     public static final String TAG_MOVIE_DETAILS_FRAGMENT = "movieDetailsFragment";
+
+    private static final String ARG_MOVIE_ID = "movieId";
 
     int movieId;
     Realm mRealm;
@@ -159,7 +162,7 @@ public class MovieDetailsActivity extends AppCompatActivity{
                 movieId = extras.getInt(EXTRA_MOVIE);
             }
         } else {
-            movieId = (int) savedInstanceState.getSerializable(EXTRA_MOVIE);
+            movieId = (int) savedInstanceState.getInt(ARG_MOVIE_ID);
         }
         return movieId;
     }
@@ -195,5 +198,11 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
         transaction.add(viewId, fragment, tag);
         transaction.commit();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(ARG_MOVIE_ID, movieId);
     }
 }
