@@ -50,20 +50,36 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/view_pager"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_anchor="@id/app_bar"
+        app:layout_anchorGravity="bottom"
+        android:layout_gravity="bottom"
+        app:layout_scrollFlags="scroll|enterAlways"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+        <android.support.design.widget.CollapsingToolbarLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|enterAlways">
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/movie_details_tab_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_scrollFlags="scroll|enterAlways|snap"/>
+                android:layout_height="?attr/actionBarSize" />
 
-            </android.support.v4.view.ViewPager>
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
 
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    </android.support.v4.view.ViewPager>
 
 
 </android.support.design.widget.CoordinatorLayout>
