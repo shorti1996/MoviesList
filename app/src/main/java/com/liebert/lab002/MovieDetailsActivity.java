@@ -1,10 +1,7 @@
 package com.liebert.lab002;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -14,10 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.RatingBar;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -56,7 +50,7 @@ public class MovieDetailsActivity extends AppCompatActivity{
         ButterKnife.bind(this);
 
         mRealm = Realm.getDefaultInstance();
-        movieId = getMovieFromExtra(savedInstanceState);
+        movieId = getMovieFromIntentOrInstanceState(savedInstanceState);
         mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
 
         /** set the adapter for ViewPager */
@@ -154,7 +148,7 @@ public class MovieDetailsActivity extends AppCompatActivity{
         return true;
     }
 
-    private int getMovieFromExtra(Bundle savedInstanceState) {
+    private int getMovieFromIntentOrInstanceState(Bundle savedInstanceState) {
         int movieId = -1;
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
