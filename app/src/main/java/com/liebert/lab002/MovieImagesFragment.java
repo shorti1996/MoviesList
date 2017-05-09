@@ -2,30 +2,25 @@ package com.liebert.lab002;
 
 
 import android.content.Context;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.DisplayMetrics;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.liebert.lab002.Models.Movie;
 import com.liebert.lab002.Views.SquareImageView;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import io.realm.Realm;
 
 /**
@@ -35,8 +30,10 @@ import io.realm.Realm;
  */
 public class MovieImagesFragment extends Fragment {
 
+//    @BindView(R.id.movie_images_grid)
+//    GridView mImagesGrid;
     @BindView(R.id.movie_images_grid)
-    GridView mImagesGrid;
+    RecyclerView mImagesGrid;
 
     int movieId;
     Realm mRealm;
@@ -47,6 +44,8 @@ public class MovieImagesFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_MOVIE_ID = "movieId";
+
+    private static final int IMAGES_COLUMN_NUMBER = 3;
 
     public MovieImagesFragment() {
         // Required empty public constructor
@@ -82,58 +81,68 @@ public class MovieImagesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_movie_images, container, false);
         ButterKnife.bind(this, view);
 
-        mImagesGrid.setAdapter(new ImageAdapter(getContext()));
+//        mImagesGrid.setAdapter(new ImageAdapter(getContext()));
+
 
         return view;
     }
 
-//    void attach(){
-//        MovieDetailsActivity.attachFragmentToView(MovieDetailsFragment.newInstance(movieId),
-//                R.id.fragment_movie_images_root,
-//                false,
-//                "",
-//                this.getActivity());
-//    }
+    void attach(){
+        MovieDetailsActivity.attachFragmentToView(
+                MovieDetailsFragment.newInstance(movieId),
+                R.id.fragment_movie_images_root,
+                false,
+                "",
+                this.getActivity());
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 //        attach();
+        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.movie_images_grid);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), IMAGES_COLUMN_NUMBER));
+        ImagesAdapter adapter = new ImagesAdapter(getContext());
+        recyclerView.setAdapter(adapter);
     }
 
-    public class ImageAdapter extends BaseAdapter {
+    public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
+
         Context mContext;
 
-        public ImageAdapter(Context context) {
+        public ImagesAdapter(Context context) {
             mContext = context;
         }
 
         @Override
-        public int getCount() {
+        public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(mContext)
+                    .inflate(R.layout.square_image_item, parent, false);
+            return new ImageViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(ImageViewHolder holder, int position) {
+            SquareImageView squareImageView = holder.mSquareImageView;
+            squareImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            squareImageView.setPadding(0, 0, 0, 0);
+            squareImageView.setImageResource(mImageList.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
             return mImageList.size();
         }
 
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
+        public class ImageViewHolder extends RecyclerView.ViewHolder {
+            SquareImageView mSquareImageView;
 
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            SquareImageView squareImageView = new SquareImageView(mContext);
-            if (convertView == null) {
-                squareImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                squareImageView.setPadding(0, 0, 0, 0);
-            } else {
-                squareImageView = (SquareImageView) convertView;
+            public ImageViewHolder(View itemView) {
+                super(itemView);
+                mSquareImageView = (SquareImageView) itemView.findViewById(R.id.square_image_view_item);
             }
-            squareImageView.setImageResource(mImageList.get(position));
-            return squareImageView;
+
         }
     }
+
 }
