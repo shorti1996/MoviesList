@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lab002</string>
+    <string name="app_name">Movie List</string>
 
     <string name="loading_more_movies_text">Loading more movies just for you</string>
     <string name="loading_more_movies_toast">Loading more movies…</string>

@@ -148,9 +148,13 @@ public class MovieImagesFragment extends Fragment {
                 List<Backdrop> backdrops = movieImages.getBackdrops();
                 if (backdrops != null) {
                     for (int i = 0; i < IMAGES_COUNT; i++) {
-//                        Log.d("Movie bg: ", backdrops.get(i).getFilePath());
-//                        Log.d("AA: ", MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0).toString());
-                        mBackdropsUri.add(MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0));
+                        if (i < backdrops.size()) {
+                            // Log.d("Movie bg: ", backdrops.get(i).getFilePath());
+                            // Log.d("AA: ", MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0).toString());
+                            mBackdropsUri.add(MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0));
+                        } else {
+                            break;
+                        }
                     }
                     notifyDataSetChanged();
                 }
