@@ -1,5 +1,6 @@
 package com.liebert.lab002.Services;
 
+import com.liebert.lab002.Models.Credits;
 import com.liebert.lab002.Models.GenresList;
 import com.liebert.lab002.Models.MovieImages;
 import com.liebert.lab002.Models.MoviesData;
@@ -22,6 +23,7 @@ public interface ThemoviedbService {
     String DISCOVER = "discover/movie";
     String GENRES = "genre/movie/list" + "?api_key=" + API_KEY;
     String MOVIE_IMAGES = "movie/{movie_id}/images";
+    String MOVIE_CREDITS = "movie/{movie_id}/credits";
     String BACKDROP_IMAGE_ENDPOINT = "https://image.tmdb.org/t/p/w780/";
     String SMALL_IMAGE_ENDPOINT = "https://image.tmdb.org/t/p/w185/";
 
@@ -43,5 +45,10 @@ public interface ThemoviedbService {
     //https://image.tmdb.org/t/p/w780/wSJPjqp2AZWQ6REaqkMuXsCIs64.jpg
 //    @GET(ThemoviedbService.BACKDROP_IMAGE_ENDPOINT + "/")
 //    Observable<Ima>
+
+    // https://api.themoviedb.org/3/movie/274857/credits?api_key=8310fbcd5170a2a381e1723ea77f2f12
+    @GET(ThemoviedbService.MOVIE_CREDITS)
+//    Observable<ResponseBody> - cool for debug
+    Observable<Credits> getMovieCredits(@Path("movie_id") int movieId, @Query("api_key") String apiKey);
 
 }

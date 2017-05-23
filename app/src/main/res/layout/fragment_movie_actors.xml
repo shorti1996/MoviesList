@@ -1,13 +1,16 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.liebert.lab002.MovieActorsFragment" >
+    android:layout_height="wrap_content"
+    tools:context="com.liebert.lab002.MovieActorsFragment">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/actors_rv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="true"
+        android:isScrollContainer="true"/>
 
     <TextView
         android:visibility="gone"

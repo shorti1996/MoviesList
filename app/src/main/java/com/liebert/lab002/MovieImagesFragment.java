@@ -91,10 +91,10 @@ public class MovieImagesFragment extends Fragment {
 
     void attach(){
         MovieDetailsActivity.attachFragmentToView(
-                MovieDetailsFragment.newInstance(movieId),
+                MovieActorsFragment.newInstance(movieId),
                 R.id.fragment_movie_images_root,
                 false,
-                "",
+                "MOVIE_ACTORS_FRAGMENT",
                 this.getActivity());
     }
 
@@ -106,6 +106,8 @@ public class MovieImagesFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), IMAGES_COLUMN_NUMBER));
         ImagesAdapter adapter = new ImagesAdapter(getContext());
         recyclerView.setAdapter(adapter);
+
+        attach();
     }
 
     @Override

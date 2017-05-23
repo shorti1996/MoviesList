@@ -1,16 +1,36 @@
 package com.liebert.lab002;
 
 
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.liebert.lab002.Models.Cast;
+import com.liebert.lab002.Models.Credits;
 import com.liebert.lab002.Models.Movie;
-import com.liebert.lab002.R;
+import com.liebert.lab002.Services.ThemoviedbService;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -19,16 +39,14 @@ import io.realm.Realm;
  */
 public class MovieActorsFragment extends Fragment {
 
+    @BindView(R.id.actors_rv)
+    RecyclerView mActorsRv;
+
     int movieId;
     Realm mRealm;
     Movie mMovie;
 
     private static final String ARG_MOVIE_ID = "movieId";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
 
     public MovieActorsFragment() {
         // Required empty public constructor
@@ -52,12 +70,20 @@ public class MovieActorsFragment extends Fragment {
         mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
     }
 
-    //TODO create layout and bind butterknife
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mActorsRv.setLayoutManager(new LinearLayoutManager(getContext()));
+        mActorsRv.setAdapter(new CreditsAdapter(getContext()));
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_movie_actors, container, false);
+        View view = inflater.inflate(R.layout.fragment_movie_actors, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -65,4 +91,78 @@ public class MovieActorsFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putInt(ARG_MOVIE_ID, movieId);
     }
+
+    public class CreditsAdapter extends RecyclerView.Adapter<CreditsAdapter.CreditsViewHolder> {
+
+        Context mContext;
+        Retrofit mRetrofit;
+        ThemoviedbService mThemoviedbService;
+
+        List<Cast> mCastList = new LinkedList<>();
+
+        public CreditsAdapter(Context context) {
+            mContext = context;
+
+            mRetrofit = new Retrofit.Builder()
+                    .baseUrl(ThemoviedbService.SERVICE_ENDPOINT)
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            mThemoviedbService = mRetrofit.create(ThemoviedbService.class);
+            Observable<Credits> movieCreditsObservable = mThemoviedbService.getMovieCredits(movieId, ThemoviedbService.API_KEY)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError(throwable -> {
+                        Log.e("BAD THINGS", "NETWORK ERRRRROR");
+                    })
+                    .doOnComplete(() -> {
+                        Log.d("API CALL COMPLETED", "Images downloaded");
+                    });
+            movieCreditsObservable.subscribe(movieCredits -> {
+                mCastList.addAll(movieCredits.getCast());
+                notifyDataSetChanged();
+            });
+        }
+
+        @Override
+        public CreditsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(mContext)
+                    .inflate(R.layout.actor_item, parent, false);
+            return new CreditsViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(CreditsViewHolder holder, int position) {
+            Cast cast = mCastList.get(position);
+            //TODO set image
+            holder.actorCharacterTv.setText(cast.getCharacter());
+            holder.actorNameTv.setText(cast.getName());
+        }
+
+        @Override
+        public int getItemCount() {
+            return mCastList.size();
+        }
+
+        public class CreditsViewHolder extends RecyclerView.ViewHolder {
+            @BindView(R.id.actor_civ)
+            CircleImageView actorCiv;
+
+            @BindView(R.id.actor_name_tv)
+            TextView actorNameTv;
+
+            @BindView(R.id.actor_character_tv)
+            TextView actorCharacterTv;
+
+
+            public CreditsViewHolder(View itemView) {
+                super(itemView);
+                ButterKnife.bind(this, itemView);
+            }
+        }
+
+    }
+
+
 }
