@@ -18,7 +18,7 @@ public class Utils {
         return noOfColumns;
     }
 
-    private static int getDisplayOrientation(Context context){
+    public static int getDisplayOrientation(Context context){
         Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         return display.getRotation();
     }

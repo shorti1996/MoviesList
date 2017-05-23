@@ -2,19 +2,26 @@ package com.liebert.lab002;
 
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.util.Util;
 import com.liebert.lab002.Helpers.Utils;
 import com.liebert.lab002.Models.Backdrop;
 import com.liebert.lab002.Models.Movie;
@@ -46,6 +53,9 @@ public class MovieImagesFragment extends Fragment {
     @BindView(R.id.movie_images_grid)
     RecyclerView mImagesGrid;
 
+//    @BindView(R.id.fragment_movie_images_root)
+//    LinearLayout mLinearLayoutRoot;
+
     int movieId;
     Realm mRealm;
     Movie mMovie;
@@ -54,7 +64,8 @@ public class MovieImagesFragment extends Fragment {
 
     private static final String ARG_MOVIE_ID = "movieId";
 
-    private static final int IMAGES_COLUMN_NUMBER = 3;
+    private static final int IMAGES_COLUMN_NUMBER_PORTRAIT = 3;
+    private static final int IMAGES_COLUMN_NUMBER_LANDSCAPE = 2;
     public static final int IMAGES_COUNT = 6;
 
     public MovieImagesFragment() {
@@ -102,7 +113,20 @@ public class MovieImagesFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 //        attach();
         RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.movie_images_grid);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), IMAGES_COLUMN_NUMBER));
+
+//        Configuration config = getResources().getConfiguration();
+//        int o = config.orientation;
+//        Configuration.ORIENTATION_PORTRAIT;
+
+        int screenOrientation = Utils.getDisplayOrientation(getContext());
+        if (screenOrientation == Surface.ROTATION_0 || screenOrientation == Surface.ROTATION_180) {
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), IMAGES_COLUMN_NUMBER_PORTRAIT));
+//            mLinearLayoutRoot.setOrientation(LinearLayout.VERTICAL);
+        } else {
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(), IMAGES_COLUMN_NUMBER_LANDSCAPE));
+//            mLinearLayoutRoot.setOrientation(LinearLayout.HORIZONTAL);
+        }
+
         ImagesAdapter adapter = new ImagesAdapter(getContext());
         recyclerView.setAdapter(adapter);
 

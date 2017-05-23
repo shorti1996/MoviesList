@@ -132,15 +132,7 @@ public class MovieActorsFragment extends Fragment {
                     });
             movieCreditsObservable.subscribe(movieCredits -> {
                 mCastList.addAll(movieCredits.getCast());
-                mRealm.executeTransaction(realm -> {
-                    Movie movie = realm.where(Movie.class).equalTo("id", movieId).findFirst();
-
-                    // impotant:
-                    // to make credits managed by Realm do this
-                    Credits movieCreditsInRealm = realm.copyToRealmOrUpdate(movieCredits);
-                    movie.setMovieCredits(movieCreditsInRealm);
-                    realm.copyToRealmOrUpdate(movie);
-                });
+                copyCreditsToRealm(movieCredits);
                 notifyDataSetChanged();
             });
         }
@@ -188,6 +180,18 @@ public class MovieActorsFragment extends Fragment {
             }
         }
 
+    }
+
+    private void copyCreditsToRealm(Credits movieCredits) {
+        mRealm.executeTransaction(realm -> {
+            Movie movie = realm.where(Movie.class).equalTo("id", movieId).findFirst();
+
+            // impotant:
+            // to make credits managed by Realm do this
+            Credits movieCreditsInRealm = realm.copyToRealmOrUpdate(movieCredits);
+            movie.setMovieCredits(movieCreditsInRealm);
+            realm.copyToRealmOrUpdate(movie);
+        });
     }
 
 
