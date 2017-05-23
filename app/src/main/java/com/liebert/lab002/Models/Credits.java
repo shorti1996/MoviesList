@@ -8,17 +8,22 @@ import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Credits {
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
+public class Credits extends RealmObject {
+
+    @PrimaryKey
     @SerializedName("id")
     @Expose
     private Integer id;
     @SerializedName("cast")
     @Expose
-    private List<Cast> cast = null;
+    private RealmList<Cast> cast = null;
     @SerializedName("crew")
     @Expose
-    private List<Crew> crew = null;
+    private RealmList<Crew> crew = null;
 
     public Integer getId() {
         return id;
@@ -28,19 +33,19 @@ public class Credits {
         this.id = id;
     }
 
-    public List<Cast> getCast() {
+    public RealmList<Cast> getCast() {
         return cast;
     }
 
-    public void setCast(List<Cast> cast) {
+    public void setCast(RealmList<Cast> cast) {
         this.cast = cast;
     }
 
-    public List<Crew> getCrew() {
+    public RealmList<Crew> getCrew() {
         return crew;
     }
 
-    public void setCrew(List<Crew> crew) {
+    public void setCrew(RealmList<Crew> crew) {
         this.crew = crew;
     }
 

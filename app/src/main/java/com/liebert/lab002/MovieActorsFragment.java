@@ -18,6 +18,7 @@ import com.liebert.lab002.Helpers.*;
 import com.liebert.lab002.Helpers.Utils;
 import com.liebert.lab002.Models.Cast;
 import com.liebert.lab002.Models.Credits;
+import com.liebert.lab002.Models.Crew;
 import com.liebert.lab002.Models.Movie;
 import com.liebert.lab002.Services.ThemoviedbService;
 
@@ -106,6 +107,13 @@ public class MovieActorsFragment extends Fragment {
         public CreditsAdapter(Context context) {
             mContext = context;
 
+            Credits credits = mRealm.where(Credits.class).equalTo("id", movieId).findFirst();
+            if (credits != null) {
+                mCastList.addAll(credits.getCast());
+                notifyDataSetChanged();
+                return;
+            }
+
             mRetrofit = new Retrofit.Builder()
                     .baseUrl(ThemoviedbService.SERVICE_ENDPOINT)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -124,6 +132,15 @@ public class MovieActorsFragment extends Fragment {
                     });
             movieCreditsObservable.subscribe(movieCredits -> {
                 mCastList.addAll(movieCredits.getCast());
+                mRealm.executeTransaction(realm -> {
+                    Movie movie = realm.where(Movie.class).equalTo("id", movieId).findFirst();
+
+                    // impotant:
+                    // to make credits managed by Realm do this
+                    Credits movieCreditsInRealm = realm.copyToRealmOrUpdate(movieCredits);
+                    movie.setMovieCredits(movieCreditsInRealm);
+                    realm.copyToRealmOrUpdate(movie);
+                });
                 notifyDataSetChanged();
             });
         }

@@ -7,7 +7,9 @@ package com.liebert.lab002.Models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Cast {
+import io.realm.RealmObject;
+
+public class Cast extends RealmObject {
 
     @SerializedName("cast_id")
     @Expose

@@ -1,8 +1,6 @@
 
 package com.liebert.lab002.Models;
 
-import android.media.Image;
-
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -89,6 +87,18 @@ public class Movie extends RealmObject {
     @SerializedName("modified")
     @Expose
     private boolean modified = false;
+
+    @SerializedName("movieCredits")
+    @Expose
+    private Credits movieCredits = null;
+
+    public Credits getMovieCredits() {
+        return movieCredits;
+    }
+
+    public void setMovieCredits(Credits movieCredits) {
+        this.movieCredits = movieCredits;
+    }
 
     public boolean getIsDummy() {
         return isDummy;
