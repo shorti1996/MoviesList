@@ -13,6 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.liebert.lab002.Helpers.*;
+import com.liebert.lab002.Helpers.Utils;
 import com.liebert.lab002.Models.Cast;
 import com.liebert.lab002.Models.Credits;
 import com.liebert.lab002.Models.Movie;
@@ -138,6 +141,12 @@ public class MovieActorsFragment extends Fragment {
             //TODO set image
             holder.actorCharacterTv.setText(cast.getCharacter());
             holder.actorNameTv.setText(cast.getName());
+
+            String imagePath = Utils.ImagePath.getFullImagePath(cast.getProfilePath(), Utils.ImagePath.WIDTH_154)
+                    .getPath().toString();
+            Glide.with(mContext)
+                    .load(imagePath)
+                    .into(holder.actorCiv);
         }
 
         @Override

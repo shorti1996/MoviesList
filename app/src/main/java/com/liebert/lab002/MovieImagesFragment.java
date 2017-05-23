@@ -9,14 +9,13 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.liebert.lab002.Helpers.Utils;
 import com.liebert.lab002.Models.Backdrop;
 import com.liebert.lab002.Models.Movie;
 import com.liebert.lab002.Models.MovieImages;
@@ -151,7 +150,8 @@ public class MovieImagesFragment extends Fragment {
                         if (i < backdrops.size()) {
                             // Log.d("Movie bg: ", backdrops.get(i).getFilePath());
                             // Log.d("AA: ", MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0).toString());
-                            mBackdropsUri.add(MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0));
+                            mBackdropsUri.add(Utils.ImagePath.getFullImagePath(backdrops.get(i).getFilePath(),
+                                    Utils.ImagePath.WIDTH_185));
                         } else {
                             break;
                         }
