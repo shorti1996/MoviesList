@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    app:layout_scrollFlags="scroll"
-    tools:context="com.liebert.lab002.MovieImagesFragment">
+    tools:context="com.liebert.lab002.MovieImagesFragment" >
 
     <LinearLayout
         android:id="@+id/fragment_movie_images_root"
@@ -28,7 +27,7 @@
             android:nestedScrollingEnabled="false" />
 
         <TextView
-            android:visibility="visible"
+            android:visibility="gone"
             android:nestedScrollingEnabled="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
