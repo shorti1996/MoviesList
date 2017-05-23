@@ -75,7 +75,7 @@ dependencies {
 
     ///movies api wrapper
     //    compile group: 'info.movito', name: 'themoviedbapi', version:'1.4'
-
+    compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'io.reactivex.rxjava2:rxjava:2.0.8'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'

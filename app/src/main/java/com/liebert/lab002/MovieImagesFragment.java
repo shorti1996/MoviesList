@@ -51,11 +51,8 @@ public class MovieImagesFragment extends Fragment {
     Realm mRealm;
     Movie mMovie;
 
-//    List<Integer> mImageList;
     List<Poster> mPosters;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_MOVIE_ID = "movieId";
 
     private static final int IMAGES_COLUMN_NUMBER = 3;
@@ -81,11 +78,6 @@ public class MovieImagesFragment extends Fragment {
         }
         mRealm = Realm.getDefaultInstance();
         mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
-
-//        mImageList = new LinkedList<>();
-//        for (int i = 0; i < 6; i++) {
-//            mImageList.add(R.drawable.backdrop);
-//        }
     }
 
     @Override
@@ -120,12 +112,6 @@ public class MovieImagesFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(ARG_MOVIE_ID, movieId);
-    }
-
-    private int getDisplayOrientation(){
-        Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        int rotation = display.getRotation();
-        return rotation;
     }
 
     public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
