@@ -2,20 +2,26 @@ package com.liebert.lab002;
 
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.TableLayout;
 
+import com.bumptech.glide.Glide;
+import com.liebert.lab002.Models.Backdrop;
 import com.liebert.lab002.Models.Movie;
+import com.liebert.lab002.Models.MovieImages;
+import com.liebert.lab002.Models.Poster;
+import com.liebert.lab002.Services.ThemoviedbService;
 import com.liebert.lab002.Views.SquareImageView;
 
 import java.util.LinkedList;
@@ -23,7 +29,13 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,13 +51,15 @@ public class MovieImagesFragment extends Fragment {
     Realm mRealm;
     Movie mMovie;
 
-    List<Integer> mImageList;
+//    List<Integer> mImageList;
+    List<Poster> mPosters;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_MOVIE_ID = "movieId";
 
     private static final int IMAGES_COLUMN_NUMBER = 3;
+    public static final int IMAGES_COUNT = 6;
 
     public MovieImagesFragment() {
         // Required empty public constructor
@@ -68,10 +82,10 @@ public class MovieImagesFragment extends Fragment {
         mRealm = Realm.getDefaultInstance();
         mMovie = mRealm.where(Movie.class).equalTo("id", movieId).findFirst();
 
-        mImageList = new LinkedList<>();
-        for (int i = 0; i < 6; i++) {
-            mImageList.add(R.drawable.backdrop);
-        }
+//        mImageList = new LinkedList<>();
+//        for (int i = 0; i < 6; i++) {
+//            mImageList.add(R.drawable.backdrop);
+//        }
     }
 
     @Override
@@ -108,12 +122,51 @@ public class MovieImagesFragment extends Fragment {
         outState.putInt(ARG_MOVIE_ID, movieId);
     }
 
+    private int getDisplayOrientation(){
+        Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int rotation = display.getRotation();
+        return rotation;
+    }
+
     public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageViewHolder> {
 
         Context mContext;
+        Retrofit mRetrofit;
+        ThemoviedbService mThemoviedbService;
+
+        List<Uri> mBackdropsUri = new LinkedList<>();
 
         public ImagesAdapter(Context context) {
             mContext = context;
+
+            mRetrofit = new Retrofit.Builder()
+                    .baseUrl(ThemoviedbService.SERVICE_ENDPOINT)
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            mThemoviedbService = mRetrofit.create(ThemoviedbService.class);
+            Observable<MovieImages> movieImagesObservable = mThemoviedbService.getMovieImages(movieId, ThemoviedbService.API_KEY)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError(throwable -> {
+                        Log.e("BAD THINGS", "NETWORK ERRRRROR");
+                    })
+                    .doOnComplete(() -> {
+                        Log.d("API CALL COMPLETED", "Images downloaded");
+                    });
+
+            movieImagesObservable.subscribe(movieImages -> {
+                List<Backdrop> backdrops = movieImages.getBackdrops();
+                if (backdrops != null) {
+                    for (int i = 0; i < IMAGES_COUNT; i++) {
+//                        Log.d("Movie bg: ", backdrops.get(i).getFilePath());
+//                        Log.d("AA: ", MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0).toString());
+                        mBackdropsUri.add(MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0));
+                    }
+                    notifyDataSetChanged();
+                }
+            });
         }
 
         @Override
@@ -128,12 +181,15 @@ public class MovieImagesFragment extends Fragment {
             SquareImageView squareImageView = holder.mSquareImageView;
             squareImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             squareImageView.setPadding(0, 0, 0, 0);
-            squareImageView.setImageResource(mImageList.get(position));
+            Glide.with(mContext)
+                    .load(mBackdropsUri.get(position).getPath())
+                    .into(squareImageView);
+//            squareImageView.setImageResource(mImageList.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return mImageList.size();
+            return mBackdropsUri.size();
         }
 
         public class ImageViewHolder extends RecyclerView.ViewHolder {
