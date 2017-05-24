@@ -3,14 +3,18 @@ package com.liebert.lab002.Models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Backdrop {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
-    @SerializedName("aspect_ratio")
-    @Expose
-    private Double aspectRatio;
+public class Backdrop extends RealmObject {
+
+    @PrimaryKey
     @SerializedName("file_path")
     @Expose
     private String filePath;
+    @SerializedName("aspect_ratio")
+    @Expose
+    private Double aspectRatio;
     @SerializedName("height")
     @Expose
     private Integer height;

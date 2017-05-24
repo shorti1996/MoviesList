@@ -92,12 +92,24 @@ public class Movie extends RealmObject {
     @Expose
     private Credits movieCredits = null;
 
+    @SerializedName("movieImages")
+    @Expose
+    private MovieImages movieImages = null;
+
     public Credits getMovieCredits() {
         return movieCredits;
     }
 
     public void setMovieCredits(Credits movieCredits) {
         this.movieCredits = movieCredits;
+    }
+
+    public MovieImages getMovieImages() {
+        return movieImages;
+    }
+
+    public void setMovieImages(MovieImages movieImages) {
+        this.movieImages = movieImages;
     }
 
     public boolean getIsDummy() {

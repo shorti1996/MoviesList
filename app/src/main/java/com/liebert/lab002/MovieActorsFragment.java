@@ -147,7 +147,6 @@ public class MovieActorsFragment extends Fragment {
         @Override
         public void onBindViewHolder(CreditsViewHolder holder, int position) {
             Cast cast = mCastList.get(position);
-            //TODO set image
             holder.actorCharacterTv.setText(cast.getCharacter());
             holder.actorNameTv.setText(cast.getName());
 

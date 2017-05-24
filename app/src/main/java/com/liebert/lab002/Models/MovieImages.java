@@ -5,19 +5,24 @@ import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class MovieImages {
+import io.realm.RealmList;
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
+public class MovieImages extends RealmObject {
+
+    @PrimaryKey
     @SerializedName("id")
     @Expose
     private Integer id;
 
     @SerializedName("backdrops")
     @Expose
-    private List<Backdrop> backdrops = new LinkedList<>();
+    private RealmList<Backdrop> backdrops = null;
 
     @SerializedName("posters")
     @Expose
-    private List<Poster> posters = null;
+    private RealmList<Poster> posters = null;
 
     public Integer getId() {
         return id;
@@ -27,19 +32,19 @@ public class MovieImages {
         this.id = id;
     }
 
-    public List<Backdrop> getBackdrops() {
+    public RealmList<Backdrop> getBackdrops() {
         return backdrops;
     }
 
-    public void setBackdrops(List<Backdrop> backdrops) {
+    public void setBackdrops(RealmList<Backdrop> backdrops) {
         this.backdrops = backdrops;
     }
 
-    public List<Poster> getPosters() {
+    public RealmList<Poster> getPosters() {
         return posters;
     }
 
-    public void setPosters(List<Poster> posters) {
+    public void setPosters(RealmList<Poster> posters) {
         this.posters = posters;
     }
 

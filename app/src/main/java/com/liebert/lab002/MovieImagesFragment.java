@@ -150,6 +150,13 @@ public class MovieImagesFragment extends Fragment {
         public ImagesAdapter(Context context) {
             mContext = context;
 
+            MovieImages movieImagesFromRealm = mRealm.where(MovieImages.class).equalTo("id", movieId).findFirst();
+            if (movieImagesFromRealm != null) {
+                addMovieImagesToList(movieImagesFromRealm);
+                notifyDataSetChanged();
+                return;
+            }
+
             mRetrofit = new Retrofit.Builder()
                     .baseUrl(ThemoviedbService.SERVICE_ENDPOINT)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -168,21 +175,27 @@ public class MovieImagesFragment extends Fragment {
                     });
 
             movieImagesObservable.subscribe(movieImages -> {
-                List<Backdrop> backdrops = movieImages.getBackdrops();
-                if (backdrops != null) {
-                    for (int i = 0; i < IMAGES_COUNT; i++) {
-                        if (i < backdrops.size()) {
-                            // Log.d("Movie bg: ", backdrops.get(i).getFilePath());
-                            // Log.d("AA: ", MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0).toString());
-                            mBackdropsUri.add(Utils.ImagePath.getFullImagePath(backdrops.get(i).getFilePath(),
-                                    Utils.ImagePath.WIDTH_185));
-                        } else {
-                            break;
-                        }
-                    }
-                    notifyDataSetChanged();
-                }
+                addMovieImagesToList(movieImages);
             });
+        }
+
+        private void addMovieImagesToList(MovieImages movieImages) {
+            mBackdropsUri = new LinkedList<>();
+            List<Backdrop> backdrops = movieImages.getBackdrops();
+            if (backdrops != null) {
+                copyMovieImagesToRealm(movieImages);
+                for (int i = 0; i < IMAGES_COUNT; i++) {
+                    if (i < backdrops.size()) {
+                        // Log.d("Movie bg: ", backdrops.get(i).getFilePath());
+                        // Log.d("AA: ", MovieImages.getFullPath(backdrops.get(i).getFilePath(), 0).toString());
+                        mBackdropsUri.add(Utils.ImagePath.getFullImagePath(backdrops.get(i).getFilePath(),
+                                Utils.ImagePath.WIDTH_185));
+                    } else {
+                        break;
+                    }
+                }
+                notifyDataSetChanged();
+            }
         }
 
         @Override
@@ -217,6 +230,18 @@ public class MovieImagesFragment extends Fragment {
             }
 
         }
+    }
+
+    private void copyMovieImagesToRealm(MovieImages movieImages) {
+        mRealm.executeTransaction(realm -> {
+            Movie movie = realm.where(Movie.class).equalTo("id", movieId).findFirst();
+
+            // impotant:
+            // to make credits managed by Realm do this
+            MovieImages movieImagesInRealm = realm.copyToRealmOrUpdate(movieImages);
+            movie.setMovieImages(movieImagesInRealm);
+            realm.copyToRealmOrUpdate(movie);
+        });
     }
 
 }
