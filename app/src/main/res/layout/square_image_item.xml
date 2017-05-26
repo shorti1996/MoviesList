@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.liebert.lab002.Views.SquareImageView
+    android:id="@+id/square_image_view_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/ic_home_black_24dp">
+
+</com.liebert.lab002.Views.SquareImageView>
