@@ -1,6 +1,8 @@
 
 package com.liebert.lab002.Models;
 
+import android.support.annotation.Nullable;
+
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -154,8 +156,13 @@ public class Movie extends RealmObject {
         return super.equals(obj);
     }
 
+    @Nullable
     public String getFirstGenre() {
-        return Utils.translateGenre(Realm.getDefaultInstance(), getGenreIds().get(0).getInt());
+        if(getGenreIds() == null || getGenreIds().size() == 0) {
+            return null;
+        } else {
+            return Utils.translateGenre(Realm.getDefaultInstance(), getGenreIds().get(0).getInt());
+        }
     }
 
     public String getBackdropImageUri() {
